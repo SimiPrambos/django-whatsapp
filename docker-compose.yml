@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  backend:
+    build: ./backend/
+    container_name: django
+    restart: always
+    volumes:
+      - media:/usr/src/app/media
+    ports:
+      - "8000:8000"
+    command:
+      "python3 manage.py runserver 0:8000"
+
+  frontend:
+    build: ./frontend/
+    container_name: nuxt
+    restart: always
+    environment:
+      - API_URL=http://backend:8000/api/
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    command:
+      "npm run start"
+
+  nginx:
+    image: nginx:1.15
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - media:/usr/src/app/media
+    depends_on:
+      - frontend
+
+volumes:
+  media:
