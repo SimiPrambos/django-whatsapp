@@ -81,7 +81,7 @@ module.exports = {
   },
 
   axios: {
-    baseURL: process.env.API_URL || 'http://127.0.0.1:8000/api/'
+    baseURL: process.env.API_URL
   },
 
   auth: {
