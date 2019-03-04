@@ -1,6 +1,3 @@
-const pkg = require('./package')
-
-
 const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 
 module.exports = {
@@ -81,7 +78,7 @@ module.exports = {
   },
 
   axios: {
-    baseURL: process.env.API_URL
+    baseURL: process.env.API_URL || '/api/'
   },
 
   auth: {

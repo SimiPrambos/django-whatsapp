@@ -5,8 +5,6 @@ services:
     build: ./backend/
     container_name: django
     restart: always
-    volumes:
-      - media:/usr/src/app/media
     ports:
       - "8000:8000"
     command:
@@ -16,8 +14,6 @@ services:
     build: ./frontend/
     container_name: nuxt
     restart: always
-    environment:
-      - API_URL=http://backend:8000/api/
     ports:
       - "3000:3000"
     depends_on:
@@ -32,9 +28,5 @@ services:
       - "80:80"
     volumes:
       - ./nginx:/etc/nginx/conf.d
-      - media:/usr/src/app/media
     depends_on:
       - frontend
-
-volumes:
-  media:
