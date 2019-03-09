@@ -35,7 +35,7 @@
                     label="Password"
                     type="password"
                     v-model="model.password"
-                    v-validate="'required'"
+                    v-validate="'required|min:8'"
                     :error-messages="errors.collect('password')"
                     ref="password"
                   ></v-text-field>
@@ -101,28 +101,43 @@ export default {
       return isnull;
     },
     async register() {
+      this.loading = true;
       if (!this.formIsNull() && this.formValid) {
-        try {
-          await this.$axios.post("auth/users/create/", {
+        await this.$axios
+          .post("auth/users/create/", {
             username: this.model.username,
             email: this.model.email,
             password: this.model.password
-          });
-
-          await this.$auth.loginWith("local", {
-            data: {
-              username: this.model.username,
-              password: this.model.password
+          })
+          .then(response => {
+            if (response.status === 201) {
+              this.$auth.loginWith("local", {
+                data: {
+                  username: this.model.username,
+                  password: this.model.password
+                }
+              });
+            }
+          })
+          .catch(error => {
+            if (error.response.status === 400) {
+              if (error.response.data.password) {
+                this.errors.add({
+                  field: "password",
+                  msg: error.response.data.password
+                });
+              } else if (error.response.data.username) {
+                this.errors.add({
+                  field: "username",
+                  msg: error.response.data.username
+                });
+              }
             }
           });
-
-          this.$router.push("/");
-        } catch (e) {
-          this.clear();
-        }
-      }else{
-        this.$validator.validateAll()
+      } else {
+        this.$validator.validateAll();
       }
+      this.loading = false;
     },
     clear() {
       this.model.username = "";

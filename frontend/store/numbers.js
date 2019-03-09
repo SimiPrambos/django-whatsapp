@@ -13,7 +13,7 @@ export const actions = {
     },
     GET_NUMBERS({ rootState, commit }) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        this.$axios.get("numbers/").then(response => {
+        this.$axios.get("numbers/", { progress: true }).then(response => {
             if (response.status === 200) {
                 commit("SET_NUMBERS", response.data)
             }
@@ -21,7 +21,7 @@ export const actions = {
     },
     async POST_NUMBERS({ rootState, commit }, payload) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        await this.$axios.post("numbers/", payload).then(response => {
+        await this.$axios.post("numbers/", payload, { progress: true }).then(response => {
             if (response.status === 201) {
                 commit("ADD_NUMBERS", response.data)
             }
@@ -29,21 +29,21 @@ export const actions = {
     },
     async DELETE_NUMBERS({ rootState, commit }, id) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        await this.$axios.delete(`numbers/${id}/`).then(response => {
+        await this.$axios.delete(`numbers/${id}/`, { progress: true }).then(response => {
             if (response.status === 204) {
                 commit("REMOVE_NUMBERS", id)
             }
         })
     },
-    async SWITCH_NUMBER({ rootState, commit }, payload) {
+    SWITCH_NUMBER({ rootState, commit }, payload) {
         let status = payload.status === true ? "stop" : "start";
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        await this.$axios.get(`numbers/${payload.id}/${status}/`, { progress: true }).then(response => {
+        this.$axios.get(`numbers/${payload.id}/${status}/`, { progress: true }).then(response => {
             if (response.status == 200) {
                 commit("UPDATE_STATUS_INSTANCE", { numberId: payload.id, status: response.data.running })
             }
         })
-        await this.$axios.get(`numbers/${payload.id}/status/`).then(response => {
+        this.$axios.get(`numbers/${payload.id}/status/`, { progress: true }).then(response => {
             if (response.status == 200) {
                 commit("UPDATE_STATUS_LOGIN", { numberId: payload.id, status: response.data.is_logged_in })
             }
@@ -51,7 +51,7 @@ export const actions = {
     },
     SCAN_QRCODE({ rootState, commit }, id) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        this.$axios.get(`numbers/${id}/login/`).then(response => {
+        this.$axios.get(`numbers/${id}/login/`, { progress: true }).then(response => {
             if (response.status === 200) {
                 let qrcode = ""
                 if (response.data.status === "isLoggedIn") {

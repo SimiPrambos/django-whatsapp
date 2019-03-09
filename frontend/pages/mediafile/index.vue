@@ -34,11 +34,11 @@
                 </v-flex>
                 <v-flex xs8 sm8 md8>
                   <v-text-field
-                    label="Save as Name"
+                    :label="filepath.name"
+                    data-vv-name="mediafile"
                     v-model="filename"
-                    :hint="originalName"
-                    persistent-hint
-                    required
+                    v-validate="'required'"
+                    :error-messages="errors.collect('mediafile')"
                   ></v-text-field>
                 </v-flex>
               </v-layout>
@@ -167,7 +167,15 @@ export default {
       return string ? new Date(string).toLocaleDateString() : "";
     },
     fileChanged(file) {
-      this.filepath = file;
+      if(file.size <= 15728640){
+        this.filepath = file;
+      }else{
+        this.errors.add({
+          field: "mediafile",
+          msg: "Max size 15 Mb"
+        })
+        this.filepath = ""
+      }
     },
     close() {
       this.dialog = false;

@@ -1,7 +1,8 @@
 import createPersistedState from 'vuex-persistedstate'
 
 export const state = () => ({
-  drawer: true
+  drawer: true,
+  authError: ""
 })
 
 export const mutations = {

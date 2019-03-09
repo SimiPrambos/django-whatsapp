@@ -21,7 +21,11 @@
                           <v-text-field v-model="newnumber.name" label="Name"></v-text-field>
                         </v-flex>
                         <v-flex xs12 sm12 md12>
-                          <v-text-field v-model="newnumber.number" label="Number"></v-text-field>
+                          <vue-tel-input
+                            v-model="newnumber.number"
+                            :defaultCountry="'id'"
+                            :preferredCountries="['id']"
+                          ></vue-tel-input>
                         </v-flex>
                       </v-layout>
                     </v-container>
@@ -72,7 +76,7 @@
                         text-color="white"
                       >{{ getLabelStatus(props.item.is_logged_in) }}</v-chip>
                     </td>
-                    <td class="text-xs-left">{{ props.item.created_at }}</td>
+                    <td class="text-xs-left">{{ formateDate(props.item.created_at) }}</td>
                     <td>
                       <v-btn-toggle>
                         <v-btn small outline fab color="black" @click="toSetting(props.item.id)">
@@ -170,6 +174,9 @@ export default {
     },
     getLabelStatus(status) {
       return status ? "LoggedIn" : status ? "WaitForLogin" : "NotLoggedIn";
+    },
+    formateDate(string) {
+      return string ? new Date(string).toLocaleDateString() : "";
     },
     toSetting(id) {
       this.$router.push(`numbers/${id}`);

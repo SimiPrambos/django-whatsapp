@@ -19,6 +19,7 @@
                     :error-messages="errors.collect('number')"
                     label="Send From"
                     data-vv-name="number"
+                    prepend-icon="mdi-whatsapp"
                     required
                   ></v-select>
                   <br>
@@ -61,6 +62,7 @@
                     :error-messages="errors.collect('number')"
                     label="Send From"
                     data-vv-name="number"
+                    prepend-icon="mdi-whatsapp"
                     required
                   ></v-select>
                   <v-select

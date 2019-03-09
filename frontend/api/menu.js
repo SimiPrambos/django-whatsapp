@@ -10,20 +10,9 @@ const Menu = [
   {
     title: 'Numbers',
     group: 'apps',
-    icon: 'phone_android',
+    icon: 'mdi-whatsapp',
     name: 'Numbers',
     href: '/numbers'
-  },
-  {
-    title: 'Messages',
-    group: 'apps',
-    icon: 'chat',
-    name: 'Messages',
-    items: [
-      { name: "Create", title: "Create", href: "/messages/create" },
-      { name: "Inbox", title: "Inbox", href: "/messages/inbox" },
-      { name: "Outbox", title: "Outbox", href: "/messages/outbox" }
-    ]
   },
   {
     title: 'Contacts',
@@ -37,7 +26,37 @@ const Menu = [
     group: 'apps',
     icon: 'perm_media',
     name: 'Media',
-    href: '/media'
+    href: '/mediafile'
+  },
+  { header: 'Messages' },
+  {
+    title: 'Create',
+    group: 'messages',
+    icon: 'mdi-send',
+    name: 'Create',
+    href: '/messages/create'
+  },
+  {
+    title: 'Inbox',
+    group: 'messages',
+    icon: 'mdi-inbox-arrow-down',
+    name: 'Inbox',
+    href: '/messages/inbox'
+  },
+  {
+    title: 'Outbox',
+    group: 'messages',
+    icon: 'mdi-inbox-arrow-up',
+    name: 'Outbox',
+    href: '/messages/outbox'
+  },
+  { header: 'Settings' },
+  {
+    title: 'Webhook',
+    group: 'settings',
+    icon: 'mdi-webhook',
+    name: 'Webhook',
+    href: '/settings/webhook'
   }
 ];
 // reorder menu

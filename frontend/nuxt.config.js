@@ -28,7 +28,7 @@ module.exports = {
   /*
   ** Customize the progress-bar color
   */
-  loading: { color: '#3adced', height: '2px' },
+  loading: { color: '#3adced', height: '7px' },
 
   /*
   ** Global CSS
@@ -82,6 +82,7 @@ module.exports = {
   },
 
   auth: {
+    plugins: [ '~/plugins/auth.js' ],
     rewriteRedirects: true,
     strategies: {
       local: {

@@ -15,7 +15,7 @@ export const actions = {
         let { data } = await this.$axios.get("messages/")
         commit("SET_MESSAGES", data)
     },
-    async POST_MESSAGES({ rootState, commit }, payload) {
+    POST_MESSAGES({ rootState, commit }, payload) {
         let messgaeType = () => {
             if (payload.media) {
                 payload.messages.map(message => {
@@ -27,7 +27,7 @@ export const actions = {
             }
         }
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        await this.$axios.post(`numbers/${payload.numberId}/${messgaeType()}/`, payload.messages).then(response => {
+        this.$axios.post(`numbers/${payload.numberId}/${messgaeType()}/`, payload.messages, { progress: true }).then(response => {
             if (response.status === 201) {
                 commit("ADD_MESSAGES", response.data)
             }

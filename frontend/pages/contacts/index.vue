@@ -100,7 +100,7 @@
                 <v-data-table
                   v-model="selected"
                   :headers="headers"
-                  :items="contacts"
+                  :items="contacts?contacts:[]"
                   :search="search"
                   item-key="id"
                   select-all

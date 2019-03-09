@@ -16,9 +16,9 @@ export const actions = {
             }
         })
     },
-    async POST_CONTACTS({ rootState, commit }, payload) {
+    POST_CONTACTS({ rootState, commit }, payload) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        await this.$axios.post("contacts/", payload).then(response => {
+        this.$axios.post("contacts/", payload, { progress: true }).then(response => {
             if (response.status === 201) {
                 commit("ADD_CONTACTS", response.data)
             }
@@ -42,9 +42,9 @@ export const actions = {
             }
         })
     },
-    async POST_GROUPS({ rootState, commit }, payload) {
+    POST_GROUPS({ rootState, commit }, payload) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        await this.$axios.post("group/", payload).then(response => {
+        this.$axios.post("group/", payload, { progress: true }).then(response => {
             if (response.status === 201) {
                 commit("ADD_GROUPS", response.data)
             }
@@ -59,14 +59,14 @@ export const mutations = {
     ADD_CONTACTS(state, contacts) {
         state.list.push(contacts)
     },
-    REMOVE_CONTACTS(state, id){
+    REMOVE_CONTACTS(state, id) {
         let index = state.list.findIndex(contact => contact.id === id)
         state.list.splice(index, 1)
     },
     SET_GROUPS(state, groups) {
         state.groups = groups
     },
-    ADD_GROUPS(state, groups){
+    ADD_GROUPS(state, groups) {
         state.groups.push(groups)
     }
 }
@@ -75,7 +75,7 @@ export const getters = {
     contacts(state) {
         return state.list
     },
-    contactsByGroup(state){
+    contactsByGroup(state) {
         return (id) => state.list.filter(contact => contact.group === id)
     },
     groups(state) {
