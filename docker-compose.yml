@@ -5,6 +5,8 @@ services:
     build: ./backend/
     container_name: django
     restart: always
+    volumes:
+      - media:/usr/src/app/media
     ports:
       - "8000:8000"
     command:
@@ -28,5 +30,9 @@ services:
       - "80:80"
     volumes:
       - ./nginx:/etc/nginx/conf.d
+      - media:/usr/src/app/media
     depends_on:
       - frontend
+
+volumes:
+  media:
