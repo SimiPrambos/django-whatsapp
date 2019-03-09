@@ -8,7 +8,7 @@ from contacts_app.models import Contacts, GroupContacts
 from users_auth.permissions import HasAPIAccess, HasWhatsappLoggedIn
 from driver_manager.drivers import status_number
 from numbers_app.models import WhatsappNumbers
-from driver_manager.notifier import HandleValidateNumber
+from rest_framework_csv.parsers import CSVParser
 
 class ContactsViewset(viewsets.ModelViewSet):
     queryset = Contacts.objects.all()
@@ -21,6 +21,12 @@ class ContactsViewset(viewsets.ModelViewSet):
         queryset = queryset.filter(group__user_id=self.request.user.id)
         return queryset
 
+    @action(detail=False, methods=['POST'], parser_classes=[CSVParser])
+    def upload(self, request):
+        serializer = ContactsSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 class GroupContactsViewset(viewsets.ModelViewSet):
     queryset = GroupContacts.objects.all()

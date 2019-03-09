@@ -1,9 +1,15 @@
-import os, shutil, threading
+import os, shutil, threading, time, random
 from .webwhatsapi import WhatsAPIDriver, WhatsAPIDriverStatus
 from selenium.common.exceptions import WebDriverException
-from .handlers import RepeatedTimer
+from .handlers import RepeatedTimer, HandleReceivedMessage, HandleSendMessage
 from django.conf import settings
-from .notifier import HandleReceivedMessage
+from .config import (
+    is_time_to_reboot,
+    is_time_to_send,
+    is_allowed_record,
+    is_allowed_read,
+    get_max_delay
+)
 
 drivers = dict()
 timers = dict()
@@ -46,27 +52,46 @@ def init_timer(id):
     if id in timers and timers[id]:
         timers[id].start()
         return
-    timers[id] = RepeatedTimer(10, check_status, id)
+    timers[id] = RepeatedTimer(5, background_task, id)
 
-def check_status(id):
+def background_task(id):
     if (id not in drivers or not drivers[id]):
         timers[id].stop()
         return
     
+    if not drivers[id].is_logged_in():
+        return
+
     if not acquire_semaphore(id, True):
         return
+
+    if is_time_to_reboot(id):
+        reboot_instance()
+        return
+    print(is_time_to_send(id))
+    if is_time_to_send(id):
+        send = HandleSendMessage(id, get_max_delay(id))
+        send.start()
+        send.join()
+
+    if is_allowed_record(id):
+        messages = incoming_message(id)
+        if messages:
+            HandleReceivedMessage(id, messages).start()
+
+def incoming_message(id):
+    messages = []
     try:
-        res = drivers[id].get_unread(use_unread_count=True)
-        for message_group in res:
-            message_group.chat.send_seen()
-        release_semaphore(id)
-        if res:
-            HandleReceivedMessage(id, res).start()
+        messages = drivers[id].get_unread(use_unread_count=True)
+        if messages:
+            if is_allowed_read(id):
+                for message in messages:
+                    message.chat.send_seen()
     except Exception:
         drivers.pop(id)
     finally:
         release_semaphore(id)
-
+    return messages
 
 def delete_client(id, remove_cache):
     if id in drivers:
@@ -100,6 +125,9 @@ def release_semaphore(id):
         semaphores[id].release()
 
 ###########################################
+def get_instance(id):
+    return drivers[id] if id in drivers and drivers[id] else None
+
 def start_instance(id):
     instance = init_client(id)
     init_timer(id)
@@ -115,6 +143,16 @@ def stop_instance(id):
             pass
     else:
         status = True
+    return status
+
+def reboot_instance(id):
+    status = False
+    try:
+        stop_instance(id)
+        start_instance(id)
+        status = True
+    except:
+        pass
     return status
 
 def status_instance(id):

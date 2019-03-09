@@ -8,7 +8,7 @@ from ..serializers.numbers import NumbersSerializer
 # numbers_app models
 from numbers_app.models import WhatsappNumbers
 # driver_manager
-from driver_manager.drivers import start_instance, stop_instance, status_instance
+from driver_manager.drivers import start_instance, stop_instance, status_instance, get_instance
 # permission
 from users_auth.permissions import HasAPIAccess
 
@@ -96,9 +96,12 @@ class LoginNumber(generics.RetrieveAPIView):
         queryset = self.get_queryset().filter(user__api_key__api_key=request.apikey, pk=pk)
         if not queryset.exists():
             return Response(status=404)
-        number_instance = start_instance(pk)
-        number_auth = number_instance.is_logged_in()
-        if not number_auth:
-            return Response({"qrcode":number_instance.get_qr_base64()})
+        if status_instance(pk)["is_running"]:
+            number_instance = get_instance(pk)
+            number_auth = number_instance.is_logged_in()
+            if not number_auth:
+                return Response({"qrcode":number_instance.get_qr_base64()})
+            else:
+                return Response({"status":"isLoggedIn"})
         else:
-            return Response({"status":"isLoggedIn"})
+            return Response({"status":"NotRunning"})

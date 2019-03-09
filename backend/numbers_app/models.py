@@ -1,7 +1,8 @@
+from datetime import time
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.dispatch import receiver
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, post_save
 from driver_manager.drivers import status_instance, delete_client
 
 def get_status(id):
@@ -11,7 +12,7 @@ class WhatsappNumbers(models.Model):
     class Meta:
         db_table = 'whatsapp_numbers'
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     lable = models.CharField(max_length=25)
     number = models.CharField(max_length=25)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -31,3 +32,25 @@ class WhatsappNumbers(models.Model):
 @receiver(post_delete, sender=WhatsappNumbers)
 def on_number_delete(sender, instance, **kwargs):
     delete_client(instance.id, remove_cache=True)
+
+
+class NumberSettings(models.Model):
+    class Meta:
+        db_table = 'number_settings'
+
+    number = models.OneToOneField('numbers_app.WhatsappNumbers', on_delete=models.CASCADE)
+    record_inbox = models.BooleanField(default=False)
+    auto_read = models.BooleanField(default=True)
+    max_delay = models.IntegerField(default=10)
+    auto_reboot = models.TimeField(default=time(00,00))
+    send_schedule_from = models.TimeField(default=time(7,00))
+    send_schedule_to = models.TimeField(default=time(17,00))
+
+    def __str__(self):
+        return self.number.lable
+
+
+@receiver(post_save, sender=WhatsappNumbers)
+def create_number_setting(sender, instance, created, **kwargs):
+    if created:
+        NumberSettings.objects.create(number_id=instance.id)
