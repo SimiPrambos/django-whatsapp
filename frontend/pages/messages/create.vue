@@ -1,95 +1,68 @@
 <template>
-  <div id="pageCreateMessage">
+  <div id="messageCreate">
     <v-container grid-list-xl fluid>
-      <v-layout row wrap>
-        <v-flex lg5 sm5 xs12>
-          <v-card>
-            <v-card-title primary-title>
-              <div>
-                <h3 class="headline mb-0">Shortcut Message</h3>
-              </div>
-            </v-card-title>
-            <v-card-text>
-              <template>
-                <form>
-                  <v-select
-                    v-model="message.from"
-                    v-validate="'required'"
-                    :items="items"
-                    :error-messages="errors.collect('number')"
-                    label="Send From"
-                    data-vv-name="number"
-                    prepend-icon="mdi-whatsapp"
-                    required
-                  ></v-select>
-                  <br>
-                  <vue-tel-input
-                    v-model="message.to"
-                    :defaultCountry="'id'"
-                    :preferredCountries="['id']"
-                  ></vue-tel-input>
-                  <br>
-                  <v-select v-model="message.media" :items="mediaList" label="Media File"></v-select>
-                  <v-textarea
-                    v-model="message.message"
-                    outline
-                    name="input-7-4"
-                    label="Message"
-                    value
-                  ></v-textarea>
-                  <v-btn @click="clear('one')" flat outline color="red">clear</v-btn>
-                  <v-btn @click="send('one')" flat outline color="blue">Send</v-btn>
-                </form>
-              </template>
-            </v-card-text>
-          </v-card>
-        </v-flex>
+      <v-card class="mx-auto" max-width="1000">
+        <v-card-title class="title font-weight-regular justify-space-between">
+          <span>{{ currentTitle }}</span>
+          <v-avatar
+            color="primary lighten-2"
+            class="subheading white--text"
+            size="24"
+            v-text="step"
+          ></v-avatar>
+        </v-card-title>
 
-        <v-flex lg7 sm7 xs12>
-          <v-card>
-            <v-card-title primary-title>
-              <div>
-                <h3 class="headline mb-0">Multiple Message</h3>
-              </div>
-            </v-card-title>
+        <v-window v-model="step">
+          <v-window-item :value="1">
             <v-card-text>
-              <template>
-                <form>
-                  <v-select
-                    v-model="multiMessage.from"
-                    v-validate="'required'"
-                    :items="items"
-                    :error-messages="errors.collect('number')"
-                    label="Send From"
-                    data-vv-name="number"
-                    prepend-icon="mdi-whatsapp"
-                    required
-                  ></v-select>
-                  <v-select
-                    v-model="multiMessage.group"
-                    v-validate="'required'"
-                    :items="groupList"
-                    :error-messages="errors.collect('group')"
-                    label="Group Contact"
-                    data-vv-name="group"
-                    required
-                  ></v-select>
-                  <v-select v-model="multiMessage.media" :items="mediaList" label="Media File"></v-select>
-                  <v-textarea
-                    v-model="multiMessage.message"
-                    outline
-                    name="input-7-4"
-                    label="Message"
-                    value
-                  ></v-textarea>
-                  <v-btn @click="clear('multi')" flat outline color="red">clear</v-btn>
-                  <v-btn @click="send('multi')" flat outline color="blue">Send</v-btn>
-                </form>
-              </template>
+              <v-select
+                v-model="messages.from"
+                :items="selectNumbers"
+                label="Select your number"
+                prepend-icon="mdi-whatsapp"
+              ></v-select>
             </v-card-text>
-          </v-card>
-        </v-flex>
-      </v-layout>
+          </v-window-item>
+
+          <v-window-item :value="2">
+            <v-card-text>
+              <v-select
+                v-model="messages.to"
+                :items="selectCategory"
+                label="Category contacts"
+                prepend-icon="contacts"
+              ></v-select>
+            </v-card-text>
+          </v-window-item>
+
+          <v-window-item :value="3">
+            <v-card-text>
+              <v-textarea
+                v-model="messages.content"
+                label="Input message"
+                auto-grow
+                clearable
+                prepend-inner-icon="edit"
+              ></v-textarea>
+              <v-select
+                v-model="messages.media"
+                :items="selectMedia"
+                label="With media file (optional)"
+                prepend-inner-icon="perm_media"
+              ></v-select>
+            </v-card-text>
+          </v-window-item>
+        </v-window>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-btn :disabled="step === 1" flat @click="step--">Back</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn :disabled="step === 3" color="primary" depressed @click="step++">Next</v-btn>
+          <v-btn v-if="step===3" flat outline color="blue" @click="send">Send</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-container>
   </div>
 </template>
@@ -99,100 +72,86 @@ import { mapGetters } from "vuex";
 export default {
   layout: "dashboard",
   middleware: "auth",
-  data() {
-    return {
-      message: {
-        from: null,
-        to: "",
-        message: "",
-        media: null
-      },
-      multiMessage: {
-        from: null,
-        group: null,
-        message: "",
-        media: null
-      }
-    };
+  data: () => ({
+    step: 1,
+    messages: {
+      from: null,
+      media: null,
+      to: null,
+      content: null
+    }
+  }),
+  mounted() {
+    this.$store.dispatch("numbers/GET_NUMBERS");
+    this.$store.dispatch("contacts/GET_CONTACTS");
+    this.$store.dispatch("contacts/GET_CATEGORY");
+    this.$store.dispatch("media/GET_MEDIA");
   },
   computed: {
     ...mapGetters({
-      LoggedInNumber: "numbers/numbersIsLoggedIn",
-      getGroups: "contacts/groups",
-      getContactsFromGroup: "contacts/contactsByGroup",
+      numbers: "numbers/numbers",
+      contacts: "contacts/contacts",
+      category: "contacts/category",
+      contactsByCategory: "contacts/contactsByCategory",
       media: "media/media"
     }),
-    items() {
-      let numbers = [];
-      this.LoggedInNumber.map(number => {
-        numbers.push({ text: number.lable, value: number.id });
-      });
-      return numbers;
+    currentTitle() {
+      switch (this.step) {
+        case 1:
+          return "Send From";
+        case 2:
+          return "Send To";
+        case 3:
+          return "Message";
+        default:
+          return "Account created";
+      }
     },
-    groupList() {
-      let groups = [];
-      this.getGroups.map(group => {
-        groups.push({ text: group.name, value: group.id });
+    selectNumbers() {
+      let numberlist = [];
+      this.numbers.map(number => {
+        numberlist.push({ text: number.lable, value: number.id });
       });
-      return groups;
+      return numberlist;
     },
-    mediaList() {
-      let files = [];
-      this.media.map(file => {
-        files.push({ text: file.filename, value: file.id });
+    selectCategory() {
+      let categorylist = [];
+      this.category.map(cat => {
+        categorylist.push({ text: cat.name, value: cat.name });
       });
-      return files;
+      return categorylist;
+    },
+    selectMedia() {
+      let medialist = [];
+      this.media.map(med => {
+        medialist.push({ text: med.filename, value: med.id });
+      });
+      return medialist;
     }
   },
   methods: {
-    validatedNumber(number) {
-      return number
-        .toString()
-        .replace(/\s/g, "")
-        .replace("+", "");
+    clear() {
+      this.messages.from = null;
+      this.messages.to = null;
+      this.messages.media = null;
+      this.messages.content = null;
+      this.step = 1;
     },
-    clear(type) {
-      if (type === "one") {
-        this.message.from = "";
-        this.message.to = "";
-        this.message.message = "";
-        this.message.media = null;
-      } else if (type === "multi") {
-        this.multiMessage.from = null;
-        this.multiMessage.group = null;
-        this.multiMessage.message = null;
-        this.multiMessage.media = null;
-      }
-      this.$validator.reset();
-    },
-    send(type) {
+    send() {
       let payload = {
-        numberId: null,
-        media: null,
+        numberId: this.messages.from,
+        media: this.messages.media,
         messages: []
       };
-      if (type === "one") {
-        payload.numberId = this.message.from;
-        payload.media = this.message.media;
+      this.contactsByCategory(this.messages.to).map(contact => {
         payload.messages.push({
-          message_number: this.validatedNumber(this.message.to),
-          message_content: this.message.message
+          message_number: contact.number,
+          message_content: this.messages.content
         });
-      } else if (type === "multi") {
-        payload.numberId = this.multiMessage.from;
-        payload.media = this.multiMessage.media;
-        let numbers = this.getContactsFromGroup(this.multiMessage.group);
-        numbers.map(number => {
-          payload.messages.push({
-            message_number: this.validatedNumber(number.number),
-            message_content: this.multiMessage.message
-          });
-        });
-      }
+      });
       this.$store.dispatch("messages/POST_MESSAGES", payload);
-      this.clear(type);
+      this.clear();
     }
   }
 };
 </script>
-

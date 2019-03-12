@@ -11,7 +11,7 @@
     <v-toolbar color="primary darken-1" dark>
       <!-- <img src="../static/m.png" height="36" alt="Vue Material Admin Template"> -->
       <v-toolbar-title class="ml-0 pl-3">
-        <span class="hidden-sm-and-down">WhatsPanel</span>
+        <span class="hidden-sm-and-down">{{$store.state.brand}}</span>
       </v-toolbar-title>
     </v-toolbar>
     <vue-perfect-scrollbar class="drawer-menu--scroll" :settings="scrollSettings">

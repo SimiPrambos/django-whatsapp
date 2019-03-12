@@ -1,7 +1,7 @@
 const DefaultState = () => {
     return {
         list: [],
-        groups: []
+        category: []
     }
 }
 
@@ -34,40 +34,40 @@ export const actions = {
             })
         })
     },
-    async GET_GROUPS({ rootState, commit }) {
+    async GET_CATEGORY({ rootState, commit }) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        await this.$axios.get("group/").then(response => {
+        await this.$axios.get("category/").then(response => {
             if (response.status === 200) {
-                commit("SET_GROUPS", response.data)
+                commit("SET_CATEGORY", response.data)
             }
         })
     },
-    POST_GROUPS({ rootState, commit }, payload) {
+    POST_CATEGORY({ rootState, commit }, payload) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        this.$axios.post("group/", payload, { progress: true }).then(response => {
+        this.$axios.post("category/", payload, { progress: true }).then(response => {
             if (response.status === 201) {
-                commit("ADD_GROUPS", response.data)
+                commit("ADD_CATEGORY", response.data)
             }
         })
     },
 }
 
 export const mutations = {
-    SET_CONTACTS(state, contacts) {
-        state.list = contacts
+    SET_CONTACTS(state, payload) {
+        state.list = payload
     },
-    ADD_CONTACTS(state, contacts) {
-        state.list.push(contacts)
+    ADD_CONTACTS(state, payload) {
+        state.list.push(payload)
     },
     REMOVE_CONTACTS(state, id) {
         let index = state.list.findIndex(contact => contact.id === id)
         state.list.splice(index, 1)
     },
-    SET_GROUPS(state, groups) {
-        state.groups = groups
+    SET_CATEGORY(state, payload) {
+        state.category = payload
     },
-    ADD_GROUPS(state, groups) {
-        state.groups.push(groups)
+    ADD_CATEGORY(state, payload) {
+        state.category.push(payload)
     }
 }
 
@@ -75,13 +75,13 @@ export const getters = {
     contacts(state) {
         return state.list
     },
-    contactsByGroup(state) {
-        return (id) => state.list.filter(contact => contact.group === id)
+    contactsByCategory(state) {
+        return (id) => state.list.filter(contact => contact.category.includes(id) === true)
     },
-    groups(state) {
-        return state.groups
+    category(state) {
+        return state.category
     },
-    groupsById(state) {
-        return (id) => state.groups.find(group => group.id === id)
+    categoryById(state) {
+        return (id) => state.category.find(cat => cat.id === id)
     }
 }

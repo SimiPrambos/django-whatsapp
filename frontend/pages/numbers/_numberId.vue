@@ -30,7 +30,12 @@
               </v-list-tile>
               <v-list-tile dense>
                 <v-list-tile-content class="align-center">
-                  <v-btn flat outline color="red" @click="deleteNumber(number.id)">REMOVE THIS NUMBER</v-btn>
+                  <v-btn
+                    flat
+                    outline
+                    color="red"
+                    @click="deleteNumber(number.id)"
+                  >REMOVE THIS NUMBER</v-btn>
                 </v-list-tile-content>
               </v-list-tile>
             </v-list>
@@ -39,74 +44,70 @@
         <v-flex xs12 sm8>
           <v-card flat hover>
             <v-card-title>
-              <template>
-                <v-progress-linear :height="loading" :indeterminate="true"></v-progress-linear>
-              </template>
               <span class="title font-weight-light">Actions</span>
             </v-card-title>
-            <v-container fluid grid-list-sm>
-              <v-layout row wrap>
-                <v-flex xs12 sm6>
-                  <v-list>
-                    <v-list-tile>
-                      <v-list-tile-content>Instance</v-list-tile-content>
-                      <v-list-tile-action>
-                        <v-switch
-                          :input-value="number.is_running"
-                          @change="switchNumber(number.id, number.is_running)"
-                        ></v-switch>
-                      </v-list-tile-action>
-                      <v-list-tile-content>
-                        <v-chip
-                          label
-                          small
-                          :color="getColorByStatus(getLabelInstance(number.is_running))"
-                          text-color="white"
-                        >{{ getLabelInstance(number.is_running) }}</v-chip>
-                      </v-list-tile-content>
-                    </v-list-tile>
-                    <v-list-tile>
-                      <v-list-tile-content>Status</v-list-tile-content>
-                      <v-list-tile-action></v-list-tile-action>
-                      <v-list-tile-content>
-                        <v-chip
-                          label
-                          small
-                          :color="getColorByStatus(getLabelStatus(number.is_running, number.is_logged_in))"
-                          text-color="white"
-                        >{{ getLabelStatus(number.is_running, number.is_logged_in) }}</v-chip>
-                      </v-list-tile-content>
-                    </v-list-tile>
-                  </v-list>
-                </v-flex>
-                <v-flex xs12 sm6>
-                  <v-card color="blue">
-                    <v-img
-                      v-if="qrcode"
-                      :src="qrcode"
-                      aspect-ratio="1"
-                      position="center"
-                      class="grey lighten-2"
-                    ></v-img>
-                    <v-img
-                      v-else
-                      :src="defaultImage"
-                      aspect-ratio="1"
-                      position="center"
-                      class="grey lighten-2"
-                    >
-                      <template v-if="scan>=10">
-                        <v-layout fill-height align-center justify-center ma-0>
-                          <v-btn large color="primary" @click="scan = 0">
-                            <v-icon>cached</v-icon>REFRESH
-                          </v-btn>
-                        </v-layout>
-                      </template>
-                    </v-img>
-                  </v-card>
-                </v-flex>
-              </v-layout>
-            </v-container>
+            <v-card-content>
+                <v-layout row wrap>
+                  <v-flex xs12 sm6>
+                    <v-list>
+                      <v-list-tile>
+                        <v-list-tile-content>Instance</v-list-tile-content>
+                        <v-list-tile-action>
+                          <v-switch
+                            :input-value="number.is_running"
+                            @change="switchNumber(number.id, number.is_running)"
+                          ></v-switch>
+                        </v-list-tile-action>
+                        <v-list-tile-action>
+                          <v-chip
+                            label
+                            small
+                            :color="getColorByStatus(getLabelInstance(number.is_running))"
+                            text-color="white"
+                          >{{ getLabelInstance(number.is_running) }}</v-chip>
+                        </v-list-tile-action>
+                      </v-list-tile>
+                      <v-list-tile>
+                        <v-list-tile-content>Status</v-list-tile-content>
+                        <v-list-tile-action>
+                          <v-chip
+                            label
+                            small
+                            :color="getColorByStatus(getLabelStatus(number.is_running, number.is_logged_in))"
+                            text-color="white"
+                          >{{ getLabelStatus(number.is_running, number.is_logged_in) }}</v-chip>
+                        </v-list-tile-action>
+                      </v-list-tile>
+                    </v-list>
+                  </v-flex>
+                  <v-flex xs12 sm6>
+                    <v-card color="blue">
+                      <v-img
+                        v-if="qrcode"
+                        :src="qrcode"
+                        aspect-ratio="1"
+                        position="center"
+                        class="grey lighten-2"
+                      ></v-img>
+                      <v-img
+                        v-else
+                        :src="defaultImage"
+                        aspect-ratio="1.2"
+                        position="center"
+                        class="grey lighten-2"
+                      >
+                        <template v-if="scan>=10">
+                          <v-layout fill-height align-center justify-center ma-0>
+                            <v-btn large color="primary" @click="scan = 0">
+                              <v-icon>cached</v-icon>REFRESH
+                            </v-btn>
+                          </v-layout>
+                        </template>
+                      </v-img>
+                    </v-card>
+                  </v-flex>
+                </v-layout>
+            </v-card-content>
           </v-card>
         </v-flex>
       </v-layout>
@@ -193,7 +194,7 @@ export default {
     },
     deleteNumber(id) {
       this.$store.dispatch("numbers/DELETE_NUMBERS", id);
-      this.$router.push("/numbers")
+      this.$router.push("/numbers");
     }
   }
 };

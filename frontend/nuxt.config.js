@@ -82,7 +82,6 @@ module.exports = {
   },
 
   auth: {
-    plugins: [ '~/plugins/auth.js' ],
     rewriteRedirects: true,
     strategies: {
       local: {
