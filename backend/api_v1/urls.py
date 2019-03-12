@@ -2,6 +2,7 @@ from django.urls import path, include
 from .viewsets.numbers import (
     NumbersViewset,
     DetailNumbersViewset,
+    NumberSettingsViewset,
     StartNumber,
     StopNumber,
     StatusNumber,
@@ -14,13 +15,13 @@ from .viewsets.messages import (
     WhatsappMediaViewset,
     WhastappMediaDetailViewset
 )
-from .viewsets.contacts import ContactsViewset, GroupContactsViewset
+from .viewsets.contacts import ContactsViewset, ContactsCategoryViewset
 from .viewsets.media import UsersMediaViewset
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register('media', UsersMediaViewset, base_name='api_media')
-router.register('group', GroupContactsViewset, base_name='api_group')
+router.register('category', ContactsCategoryViewset, base_name='api_category')
 router.register('contacts', ContactsViewset, base_name='api_contacts')
 
 urlpatterns = [
@@ -34,6 +35,7 @@ urlpatterns = [
     path('numbers/<int:pk>/start/', StartNumber.as_view(), name='api_number_start'),
     path('numbers/<int:pk>/stop/', StopNumber.as_view(), name='api_number_stop'),
     path('numbers/<int:pk>/status/', StatusNumber.as_view(), name='api_number_status'),
+    path('numbers/<int:pk>/setting/', NumberSettingsViewset.as_view(), name='api_number_setting'),
     path('numbers/<int:pk>/login/', LoginNumber.as_view(), name='api_number_login'),
     # path('numbers/<int:pk>/logout/'),
     path('numbers/<int:pk>/chats/', WhatsappChatViewset.as_view(), name='api_messages_chat'),

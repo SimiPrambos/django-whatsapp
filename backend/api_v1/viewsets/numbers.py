@@ -1,15 +1,15 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-# drf viewsets
+
 from rest_framework import generics
 from rest_framework.response import Response
-# numbers serializer
-from ..serializers.numbers import NumbersSerializer
-# numbers_app models
-from numbers_app.models import WhatsappNumbers
-# driver_manager
+
+from ..serializers.numbers import NumbersSerializer, NumberSettingsSerializer
+
+from numbers_app.models import WhatsappNumbers, NumberSettings
+
 from driver_manager.drivers import start_instance, stop_instance, status_instance, get_instance
-# permission
+
 from users_auth.permissions import HasAPIAccess
 
 class NumbersViewset(generics.ListCreateAPIView):
@@ -36,6 +36,18 @@ class DetailNumbersViewset(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         queryset = super(DetailNumbersViewset, self).get_queryset()
         queryset = queryset.filter(user__api_key__api_key=self.request.apikey)
+        return queryset
+
+
+class NumberSettingsViewset(generics.RetrieveUpdateAPIView):
+    queryset = NumberSettings.objects.all()
+    serializer_class = NumberSettingsSerializer
+    lookup_field = 'pk'
+    permission_classes = (HasAPIAccess, )
+
+    def get_queryset(self):
+        queryset = super(NumberSettingsViewset, self).get_queryset()
+        queryset = queryset.filter(number_user__api_key__api_key=self.request.apikey)
         return queryset
 
 
@@ -98,8 +110,7 @@ class LoginNumber(generics.RetrieveAPIView):
             return Response(status=404)
         if status_instance(pk)["is_running"]:
             number_instance = get_instance(pk)
-            number_auth = number_instance.is_logged_in()
-            if not number_auth:
+            if not number_instance.is_logged_in():
                 return Response({"qrcode":number_instance.get_qr_base64()})
             else:
                 return Response({"status":"isLoggedIn"})

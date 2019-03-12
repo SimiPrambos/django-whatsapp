@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import GroupContacts, Contacts
+from .models import Contacts, ContactsCategory
 
-admin.site.register(GroupContacts)
+admin.site.register(ContactsCategory)
 admin.site.register(Contacts)

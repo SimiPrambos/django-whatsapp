@@ -1,13 +1,18 @@
 from rest_framework import serializers
-from contacts_app.models import Contacts, GroupContacts
-from .groups import GroupContactsSerializer
+from contacts_app.models import Contacts, ContactsCategory
 
 class ContactsSerializer(serializers.ModelSerializer):
-    # group = serializers.PrimaryKeyRelatedField(queryset=GroupContacts.objects.all())
+    # category = serializers.StringRelatedField(many=True, read_only=True)
     class Meta:
         model = Contacts
-        fields = ('id', 'name', 'number', 'is_active', 'group')
-        # read_only_fields = ('is_active',)
+        exclude = ['user']
+
+
+class ContactsCategorySerializer(serializers.ModelSerializer):
+    # contacts = ContactsSerializer(many=True, read_only=True, fields=['name'])
+    class Meta:
+        model = ContactsCategory
+        fields = ['id', 'name']
 
 
 class ValidateContactsSerializer(serializers.Serializer):

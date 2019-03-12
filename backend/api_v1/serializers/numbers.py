@@ -2,7 +2,7 @@
 from rest_framework import serializers
 
 # numbers_app models
-from numbers_app.models import WhatsappNumbers
+from numbers_app.models import WhatsappNumbers, NumberSettings
 from driver_manager.drivers import status_instance
 
 class NumbersSerializer(serializers.ModelSerializer):
@@ -12,3 +12,9 @@ class NumbersSerializer(serializers.ModelSerializer):
     class Meta:
         model = WhatsappNumbers
         fields = ('id', 'lable', 'number', 'created_at', 'is_running', 'is_logged_in')
+
+
+class NumberSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NumberSettings
+        fields = '__all__'

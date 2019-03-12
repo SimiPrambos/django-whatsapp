@@ -43,8 +43,8 @@ class NumberSettings(models.Model):
     auto_read = models.BooleanField(default=True)
     max_delay = models.IntegerField(default=10)
     auto_reboot = models.TimeField(default=time(00,00))
-    send_schedule_from = models.TimeField(default=time(7,00))
-    send_schedule_to = models.TimeField(default=time(17,00))
+    send_schedule_from = models.TimeField(default=time(00,30))
+    send_schedule_to = models.TimeField(default=time(23,30))
 
     def __str__(self):
         return self.number.lable

@@ -10,6 +10,7 @@ from .config import (
     is_allowed_read,
     get_max_delay
 )
+from messages_app.models import WhatsappChatMessages, WhatsappMediaMessages
 
 drivers = dict()
 timers = dict()
@@ -68,18 +69,16 @@ def background_task(id):
     if is_time_to_reboot(id):
         reboot_instance()
         return
+    
     print(is_time_to_send(id))
-    if is_time_to_send(id):
-        send = HandleSendMessage(id, get_max_delay(id))
-        send.start()
-        send.join()
+    if drivers[id].is_logged_in():
+        if is_time_to_send(id):
+            outbound_message_background(id)
 
-    if is_allowed_record(id):
-        messages = incoming_message(id)
-        if messages:
-            HandleReceivedMessage(id, messages).start()
+        if is_allowed_record(id):
+            incoming_message_background(id)
 
-def incoming_message(id):
+def incoming_message_background(id):
     messages = []
     try:
         messages = drivers[id].get_unread(use_unread_count=True)
@@ -87,12 +86,39 @@ def incoming_message(id):
             if is_allowed_read(id):
                 for message in messages:
                     message.chat.send_seen()
+            HandleReceivedMessage(id, messages).start()
+
     except Exception:
         drivers.pop(id)
     finally:
         release_semaphore(id)
     return messages
 
+def outbound_message_background(id):
+    chats = WhatsappChatMessages.objects.filter(
+        number_id=id, message_type='OUT',
+        message_status='P', send_retry__lt=3
+    )
+    medias = WhatsappMediaMessages.objects.filter(
+        number_id=id, message_type='OUT',
+        message_status='P', send_retry__lt=3
+    )
+    max_delay = get_max_delay(id)
+    
+    if chats:
+        for chat in chats:
+            time.sleep(random.randint(1, max_delay))
+            task = HandleSendMessage(id=id, instance=chat)
+            task.start()
+            task.join()
+
+    if medias:
+        for media in medias:
+            time.sleep(random.randint(1, max_delay))
+            task = HandleSendMessage(id=id, instance=media, media=True)
+            task.start()
+            task.join()
+        
 def delete_client(id, remove_cache):
     if id in drivers:
         drivers.pop(id).quit()
