@@ -1,0 +1,8 @@
+/.vscode/
+/.env/
+/chrome_cache/
+db.sqlite3
+**/__pycache__/
+**/migrations/
+/media/**
+/static/

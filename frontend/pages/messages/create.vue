@@ -117,7 +117,7 @@ export default {
     selectCategory() {
       let categorylist = [];
       this.category.map(cat => {
-        categorylist.push({ text: cat.name, value: cat.name });
+        categorylist.push({ text: cat.name, value: cat.id });
       });
       return categorylist;
     },

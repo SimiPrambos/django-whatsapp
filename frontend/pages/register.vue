@@ -47,6 +47,7 @@
                     v-model="model.confirmpassword"
                     v-validate="'required|confirmed:password'"
                     :error-messages="errors.collect('confirm-password')"
+                    v-on:keyup.enter="register"
                   ></v-text-field>
                 </v-form>
               </v-card-text>

@@ -46,68 +46,114 @@
             <v-card-title>
               <span class="title font-weight-light">Actions</span>
             </v-card-title>
-            <v-card-content>
-                <v-layout row wrap>
-                  <v-flex xs12 sm6>
-                    <v-list>
-                      <v-list-tile>
-                        <v-list-tile-content>Instance</v-list-tile-content>
-                        <v-list-tile-action>
-                          <v-switch
-                            :input-value="number.is_running"
-                            @change="switchNumber(number.id, number.is_running)"
-                          ></v-switch>
-                        </v-list-tile-action>
-                        <v-list-tile-action>
-                          <v-chip
-                            label
-                            small
-                            :color="getColorByStatus(getLabelInstance(number.is_running))"
-                            text-color="white"
-                          >{{ getLabelInstance(number.is_running) }}</v-chip>
-                        </v-list-tile-action>
-                      </v-list-tile>
-                      <v-list-tile>
-                        <v-list-tile-content>Status</v-list-tile-content>
-                        <v-list-tile-action>
-                          <v-chip
-                            label
-                            small
-                            :color="getColorByStatus(getLabelStatus(number.is_running, number.is_logged_in))"
-                            text-color="white"
-                          >{{ getLabelStatus(number.is_running, number.is_logged_in) }}</v-chip>
-                        </v-list-tile-action>
-                      </v-list-tile>
-                    </v-list>
-                  </v-flex>
-                  <v-flex xs12 sm6>
-                    <v-card color="blue">
-                      <v-img
-                        v-if="qrcode"
-                        :src="qrcode"
-                        aspect-ratio="1"
-                        position="center"
-                        class="grey lighten-2"
-                      ></v-img>
-                      <v-img
-                        v-else
-                        :src="defaultImage"
-                        aspect-ratio="1.2"
-                        position="center"
-                        class="grey lighten-2"
-                      >
-                        <template v-if="scan>=10">
-                          <v-layout fill-height align-center justify-center ma-0>
-                            <v-btn large color="primary" @click="scan = 0">
-                              <v-icon>cached</v-icon>REFRESH
-                            </v-btn>
-                          </v-layout>
-                        </template>
-                      </v-img>
-                    </v-card>
-                  </v-flex>
-                </v-layout>
-            </v-card-content>
+            <v-card-text>
+              <v-layout row wrap>
+                <v-flex xs12 sm6>
+                  <v-list>
+                    <v-list-tile>
+                      <v-list-tile-content>Instance</v-list-tile-content>
+                      <v-list-tile-action>
+                        <v-switch
+                          :input-value="number.is_running"
+                          @change="switchNumber(number.id, number.is_running)"
+                        ></v-switch>
+                      </v-list-tile-action>
+                      <v-list-tile-action>
+                        <v-chip
+                          label
+                          small
+                          :color="getColorByStatus(getLabelInstance(number.is_running))"
+                          text-color="white"
+                        >{{ getLabelInstance(number.is_running) }}</v-chip>
+                      </v-list-tile-action>
+                    </v-list-tile>
+                    <v-list-tile>
+                      <v-list-tile-content>Status</v-list-tile-content>
+                      <v-list-tile-action>
+                        <v-chip
+                          label
+                          small
+                          :color="getColorByStatus(getLabelStatus(number.is_running, number.is_logged_in))"
+                          text-color="white"
+                        >{{ getLabelStatus(number.is_running, number.is_logged_in) }}</v-chip>
+                      </v-list-tile-action>
+                    </v-list-tile>
+                    <v-list-tile>
+                      <v-list-tile-title>Schedule :</v-list-tile-title>
+                    </v-list-tile>
+                    <v-list-tile>
+                      <v-list-tile-title>Schedule :</v-list-tile-title>
+                      <v-list-tile-action>
+                        <v-layout row wrap>
+                          <v-flex sm6>
+                            <v-menu
+                              :close-on-content-click="false"
+                              :nudge-right="40"
+                              lazy
+                              transition="scale-transition"
+                              offset-y
+                              full-width
+                              min-width="290px"
+                            >
+                              <template v-slot:activator="{ on }">
+                                <v-text-field label="From" readonly v-on="on"></v-text-field>
+                              </template>
+                              <v-time-picker
+                                full-width
+                              ></v-time-picker>
+                            </v-menu>
+                          </v-flex>
+                          <v-flex sm6>
+                            <v-menu
+                              :close-on-content-click="false"
+                              :nudge-right="40"
+                              lazy
+                              transition="scale-transition"
+                              offset-y
+                              full-width
+                              min-width="290px"
+                            >
+                              <template v-slot:activator="{ on }">
+                                <v-text-field label="To" readonly v-on="on"></v-text-field>
+                              </template>
+                              <v-time-picker
+                                full-width
+                              ></v-time-picker>
+                            </v-menu>
+                          </v-flex>
+                        </v-layout>
+                      </v-list-tile-action>
+                    </v-list-tile>
+                  </v-list>
+                </v-flex>
+                <v-flex xs12 sm6>
+                  <v-card color="blue">
+                    <v-img
+                      v-if="qrcode"
+                      :src="qrcode"
+                      aspect-ratio="1"
+                      position="center"
+                      class="grey lighten-2"
+                    ></v-img>
+                    <v-img
+                      v-else
+                      :src="defaultImage"
+                      aspect-ratio="1.2"
+                      position="center"
+                      class="grey lighten-2"
+                    >
+                      <template v-if="scan>=10">
+                        <v-layout fill-height align-center justify-center ma-0>
+                          <v-btn large color="primary" @click="scan = 0">
+                            <v-icon>cached</v-icon>REFRESH
+                          </v-btn>
+                        </v-layout>
+                      </template>
+                    </v-img>
+                  </v-card>
+                </v-flex>
+              </v-layout>
+            </v-card-text>
           </v-card>
         </v-flex>
       </v-layout>
@@ -135,6 +181,9 @@ export default {
         "data:image/png;base64,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",
       loading: 0
     };
+  },
+  mounted(){
+    this.$store.dispatch("numbers/GET_NUMBER_SETTING", this.$route.params.numberId)
   },
   computed: {
     ...mapGetters({

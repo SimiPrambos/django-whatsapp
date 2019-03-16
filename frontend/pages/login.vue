@@ -28,6 +28,7 @@
                     v-validate="'required'"
                     :error-messages="errors.collect('password')"
                     ref="password"
+                    v-on:keyup.enter="login"
                   ></v-text-field>
                 </v-form>
                 <p v-if="error" style="color:red">{{error}}</p>

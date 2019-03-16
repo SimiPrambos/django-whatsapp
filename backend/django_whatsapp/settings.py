@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'djoser',
     'corsheaders',
     'rest_framework_csv',
+    'background_task',
 
     'users_auth',
     'numbers_app',

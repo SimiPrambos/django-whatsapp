@@ -27,6 +27,7 @@ class WhatsappChatMessages(models.Model):
     message_status = models.CharField(max_length=1, choices=[(tag.name, tag.value) for tag in MessageStatus], default='P')
     message_timestamp = models.DateTimeField(auto_now_add=True)
     send_retry = models.IntegerField(default=0)
+    on_progress = models.BooleanField(default=False)
 
     @property
     def get_chatid(self):
@@ -46,6 +47,7 @@ class WhatsappMediaMessages(models.Model):
     message_status = models.CharField(max_length=1, choices=[(tag.name, tag.value) for tag in MessageStatus], default='P')
     message_timestamp = models.DateTimeField(auto_now_add=True)
     send_retry = models.IntegerField(default=0)
+    on_progress = models.BooleanField(default=False)
 
     @property
     def get_chatid(self):

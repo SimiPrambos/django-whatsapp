@@ -70,54 +70,59 @@ def background_task(id):
         reboot_instance()
         return
     
-    print(is_time_to_send(id))
-    if drivers[id].is_logged_in():
-        if is_time_to_send(id):
-            outbound_message_background(id)
-
-        if is_allowed_record(id):
-            incoming_message_background(id)
-
-def incoming_message_background(id):
-    messages = []
     try:
-        messages = drivers[id].get_unread(use_unread_count=True)
-        if messages:
-            if is_allowed_read(id):
-                for message in messages:
-                    message.chat.send_seen()
-            HandleReceivedMessage(id, messages).start()
+        release_semaphore(id)
+        if drivers[id].is_logged_in():
+            if is_time_to_send(id):
+                print("background task started")
+                outbound_message_background(id)
 
+            if is_allowed_record(id):
+                incoming_message_background(id)
     except Exception:
         drivers.pop(id)
     finally:
         release_semaphore(id)
-    return messages
+
+def incoming_message_background(id):
+    messages = drivers[id].get_unread(use_unread_count=True)
+    if messages:
+        if is_allowed_read(id):
+            for message in messages:
+                message.chat.send_seen()
+        HandleReceivedMessage(id, messages).start()
 
 def outbound_message_background(id):
+    print("Outbound message task running...")
     chats = WhatsappChatMessages.objects.filter(
         number_id=id, message_type='OUT',
-        message_status='P', send_retry__lt=3
+        message_status='P', send_retry__lt=3,
+        on_progress=False
     )
     medias = WhatsappMediaMessages.objects.filter(
         number_id=id, message_type='OUT',
-        message_status='P', send_retry__lt=3
+        message_status='P', send_retry__lt=3,
+        on_progress=False
     )
     max_delay = get_max_delay(id)
     
     if chats:
-        for chat in chats:
+        print("Got Pending messgage : ", len(chats))
+        for index, chat in enumerate(chats, start=1):
+            print("Switching to process ", index)
+            chat.on_progress = True
+            chat.save()
+        for index, chat in enumerate(chats, start=1):
+            print("processing message with id :", index)
             time.sleep(random.randint(1, max_delay))
-            task = HandleSendMessage(id=id, instance=chat)
-            task.start()
-            task.join()
+            send = HandleSendMessage(id=id, instance=chat)
+            send.start()
+            send.join()
 
     if medias:
         for media in medias:
             time.sleep(random.randint(1, max_delay))
-            task = HandleSendMessage(id=id, instance=media, media=True)
-            task.start()
-            task.join()
+            HandleSendMessage(id=id, instance=media, media=True).start()
         
 def delete_client(id, remove_cache):
     if id in drivers:

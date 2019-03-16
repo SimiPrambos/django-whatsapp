@@ -35,7 +35,10 @@ class DetailNumbersViewset(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         queryset = super(DetailNumbersViewset, self).get_queryset()
-        queryset = queryset.filter(user__api_key__api_key=self.request.apikey)
+        queryset = queryset.filter(
+            user__api_key__api_key=self.request.apikey,
+            id=self.kwargs['pk']    
+        )
         return queryset
 
 
@@ -47,7 +50,10 @@ class NumberSettingsViewset(generics.RetrieveUpdateAPIView):
 
     def get_queryset(self):
         queryset = super(NumberSettingsViewset, self).get_queryset()
-        queryset = queryset.filter(number_user__api_key__api_key=self.request.apikey)
+        queryset = queryset.filter(
+            number__user__api_key__api_key=self.request.apikey,
+            number_id=self.kwargs['pk']    
+        )
         return queryset
 
 
@@ -108,10 +114,10 @@ class LoginNumber(generics.RetrieveAPIView):
         queryset = self.get_queryset().filter(user__api_key__api_key=request.apikey, pk=pk)
         if not queryset.exists():
             return Response(status=404)
-        if status_instance(pk)["is_running"]:
-            number_instance = get_instance(pk)
-            if not number_instance.is_logged_in():
-                return Response({"qrcode":number_instance.get_qr_base64()})
+        status = status_instance(pk)
+        if status["is_running"]:
+            if not status["is_logged_in"]:
+                return Response({"qrcode":get_instance(pk).get_qr_base64()})
             else:
                 return Response({"status":"isLoggedIn"})
         else:

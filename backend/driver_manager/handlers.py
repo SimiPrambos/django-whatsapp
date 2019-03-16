@@ -30,7 +30,7 @@ class HandleReceivedMessage(threading.Thread):
     def __init__(self, id, messages_obj):
         self.id = id
         self.messages = messages_obj
-        self.deamon = True
+        # self.deamon = True
         threading.Thread.__init__(self)
 
     def run(self):
@@ -58,26 +58,18 @@ class HandleReceivedMessage(threading.Thread):
 
 class HandleSendMessage(threading.Thread):
     def __init__(self, id, instance, media=False):
-        # from messages_app.models import WhatsappChatMessages, WhatsappMediaMessages
-
         self.id = id
-        # self.delay = delay
         self.instance = instance
         self.media = media
-        # self.chats = WhatsappChatMessages.objects.filter(
-        #     number_id=self.id, message_type='OUT',
-        #     message_status='P', send_retry__lt=3
-        # )
-        # self.medias = WhatsappMediaMessages.objects.filter(
-        #     number_id=self.id, message_type='OUT',
-        #     message_status='P', send_retry__lt=3
-        # )
-        self.deamon = True
+        self.status = None
+        # self.deamon = True
+        print("thread send to ", instance.get_chatid)
         threading.Thread.__init__(self)
 
     def run(self):
-        # import random, time
-        
+        self.instance.on_progress = True
+        self.instance.save()
+
         if self.media:
             self.send_media_message(
                 id=self.id,
@@ -94,43 +86,24 @@ class HandleSendMessage(threading.Thread):
                 instance=self.instance
             )
 
-        # if self.chats:
-        #     for chat in self.chats:
-        #         time.sleep(random.randint(1,self.delay))
-        #         self.send_text_message(
-        #             id=self.id,
-        #             to=chat.get_chatid,
-        #             content=chat.message_content,
-        #             instance=chat
-        #         )
-        # if self.medias:
-        #     for media in self.medias:
-        #         time.sleep(random.randint(1,self.delay))
-        #         self.send_media_message(
-        #             id=self.id,
-        #             to=media.get_chatid,
-        #             caption=media.message_content,
-        #             media=media.message_media.filepath.path,
-        #             instance=media
-        #         )
-    
+        self.instance.message_status = self.status
+        self.instance.send_retry += 1
+        # self.instance.on_progress = False
+        self.instance.save()
+
     def send_text_message(self, id, to, content, instance):
         from .drivers import send_message, status_number
 
         if not self.validate(id, to):
             return
-        instance.message_status = send_message(id, to, content)
-        instance.send_retry += 1
-        instance.save()
+        self.status = send_message(id, to, content)
 
     def send_media_message(self, id, to, caption, filepath, instance):
         from .drivers import send_media
 
         if not self.validate(id, to):
             return
-        instance.message_status = send_media(id, to, caption, filepath)
-        instance.send_retry += 1
-        instance.save()
+        self.status = send_media(id, to, caption, filepath)
 
     def validate(self, id, number):
         from .drivers import status_number
@@ -142,7 +115,7 @@ class HandleValidateNumber(threading.Thread):
     def __init__(self, id, instances):
         self.id = id
         self.instances = instances
-        self.deamon = True
+        # self.deamon = True
         threading.Thread.__init__(self)
 
     def run(self):

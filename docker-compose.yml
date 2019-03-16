@@ -16,6 +16,8 @@ services:
     build: ./frontend/
     container_name: nuxt
     restart: always
+    environment:
+      - BRAND=My Brand
     ports:
       - "3000:3000"
     depends_on:
