@@ -18,9 +18,17 @@ export const actions = {
             }
         })
     },
-    GET_NUMBER_SETTING({ rootState, commit }, id) {
+    async GET_NUMBER_SETTING({ rootState, commit }, id) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        this.$axios.get(`numbers/${id}/setting/`, { progress: true }).then(response => {
+        await this.$axios.get(`numbers/${id}/setting/`, { progress: true }).then(response => {
+            if (response.status === 200) {
+                commit("SET_NUMBER_SETTING", response.data)
+            }
+        })
+    },
+    async UPDATE_NUMBER_SETTING({ rootState, commit }, payload) {
+        this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
+        await this.$axios.put(`numbers/${payload.number}/setting/`, payload, { progress: true }).then(response => {
             if (response.status === 200) {
                 commit("SET_NUMBER_SETTING", response.data)
             }
@@ -55,7 +63,7 @@ export const actions = {
                 }
             })
         })
-        
+
     },
     SCAN_QRCODE({ rootState, commit }, id) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
@@ -85,7 +93,7 @@ export const mutations = {
         let number = state.list.find(number => number.id === payload.number)
         let settings = { setting: payload }
         Object.assign(number, settings)
-
+        console.log("suwiiii")
     },
     ADD_NUMBERS(state, numbers) {
         state.list.push(numbers)
@@ -129,6 +137,6 @@ export const getters = {
         return (id) => state.list.find(number => number.id === id).qrcode || ""
     },
     setting(state) {
-        return (id) => state.list.find(number => number.id === id).setting
+        return (id) => state.list.find(number => number.id === id).setting || {}
     }
 }

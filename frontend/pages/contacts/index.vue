@@ -128,9 +128,43 @@
                   </v-flex>
                 </template>
               </form-dialog>
-              <v-btn flat outline color="blue">
-                <v-icon>mdi-import</v-icon>import
-              </v-btn>
+              <form-dialog
+                title="Import Contact"
+                label="import"
+                color="blue"
+                icon="mdi-import"
+                :disabled="loadfile"
+                :onSave="importContacts"
+                ref="importcontact"
+              >
+                <template v-slot:form>
+                  <v-flex xs3 sm3 md3 align-self-start>
+                    <upload-button
+                      accept=".csv, text/csv"
+                      large
+                      title
+                      icon
+                      color="transparent"
+                      :ripple="false"
+                      :fileChangedCallback="fileChanged"
+                    >
+                      <template slot="icon-left">
+                        <v-icon>attach_file</v-icon>
+                      </template>
+                    </upload-button>
+                  </v-flex>
+                  <v-flex xs8 sm8 md8>
+                    <v-text-field readonly :label="filename?filename:'select csv file'"></v-text-field>
+                  </v-flex>
+                  <v-dialog v-model="loadfile" hide-overlay persistent width="300">
+                    <v-card color="primary" dark>
+                      <v-card-text>Validating File
+                        <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+                      </v-card-text>
+                    </v-card>
+                  </v-dialog>
+                </template>
+              </form-dialog>
               <v-spacer></v-spacer>
               <v-text-field
                 v-model="search"
@@ -185,11 +219,14 @@
 <script>
 import { mapGetters } from "vuex";
 import FormDialog from "@/components/contacts/FormDialog";
+import UploadButton from "vuetify-upload-button";
+import Papa from "papaparse";
 export default {
   layout: "dashboard",
   middleware: "auth",
   components: {
-    FormDialog
+    FormDialog,
+    UploadButton
   },
   data: () => ({
     length: 3,
@@ -213,7 +250,10 @@ export default {
       { text: "NAME", value: "name", align: "left" },
       { text: "NUMBER", value: "number", align: "left" },
       { text: "STATUS", value: "status", align: "left", sortable: true }
-    ]
+    ],
+    file: null,
+    filename: "",
+    loadfile: false
   }),
   mounted() {
     this.$store.dispatch("contacts/GET_CONTACTS");
@@ -241,6 +281,12 @@ export default {
     }
   },
   methods: {
+    fileChanged(file) {
+      this.file = file;
+      this.filename = file.name;
+      // this.loadfile = true;
+      console.log(file[0]);
+    },
     validateNumber(number) {
       return number
         .toString()
@@ -258,6 +304,28 @@ export default {
       payload.number = this.validateNumber(payload.number);
       this.$store.dispatch("contacts/POST_CONTACTS", payload);
       this.$refs.addcontact.close();
+    },
+    importContacts() {
+      let imported = [];
+      let gThis = this;
+      this.loadfile = true;
+      Papa.parse(this.file, {
+        header: true,
+        dynamicTyping: true,
+        complete: function(results) {
+          results.data.map(contact => {
+            let newcontact = contact;
+            newcontact.category = [contact.category];
+            newcontact.number = String(contact.number);
+            imported.push(newcontact);
+          });
+          imported.map(contact => {
+            gThis.$store.dispatch("contacts/POST_CONTACTS", contact);
+          });
+        }
+      });
+      this.loadfile = false;
+      this.$refs.importcontact.close();
     }
   }
 };

@@ -22,7 +22,7 @@
       <v-card-actions>
         <slot name="action">
           <v-btn flat outline block color="red" @click="formDialog=false">Close</v-btn>
-          <v-btn flat outline block color="blue" @click="onSave">Save</v-btn>
+          <v-btn flat outline block color="blue" :disabled="disabled" @click="onSave">Save</v-btn>
         </slot>
       </v-card-actions>
     </v-card>
@@ -37,7 +37,8 @@ export default {
     color: String,
     icon: String,
     block: Boolean,
-    onSave: Function
+    onSave: Function,
+    disabled: Boolean
   },
   data() {
     return {

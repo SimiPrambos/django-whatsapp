@@ -2,7 +2,7 @@
   <div id="pageDashboard">
     <v-container grid-list-xl fluid>
       <v-layout row wrap>
-        <h1>Hwllo dashboard</h1>
+        <p>Hello, this dashboard page is under contruction</p>
       </v-layout>
     </v-container>
   </div>

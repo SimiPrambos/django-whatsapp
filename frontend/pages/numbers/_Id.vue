@@ -85,8 +85,14 @@
                     :color="number.is_running?'red':'blue'"
                     @click="switchNumber(number.id, number.is_running)"
                   >{{number.is_running?'Stop':'Start'}} Whatsapp</v-btn>
-                  <v-btn flat outline block color="blue" :disabled="number.is_logged_in"
-                  @click="scan">{{qrcode?'Reload':'Scan'}} QrCode</v-btn>
+                  <v-btn
+                    flat
+                    outline
+                    block
+                    color="blue"
+                    :disabled="number.is_logged_in"
+                    @click="scan"
+                  >{{qrcode?'Reload':'Scan'}} QrCode</v-btn>
                 </v-card-actions>
               </v-flex>
             </v-layout>
@@ -100,9 +106,11 @@
               <v-icon left>settings</v-icon>
               <span class="title font-weight-light">Setting</span>
               <v-spacer></v-spacer>
-              <v-btn flat @click="update = !update" outline :color="update?'green':'blue'">
-                <v-icon left>{{update?'save':'edit'}}</v-icon>
-                {{update?'save':'edit'}}
+              <v-btn flat v-if="!update" @click="onUpdate" outline color="blue">
+                <v-icon left>edit</v-icon>edit
+              </v-btn>
+              <v-btn flat v-if="update" @click="onSave" outline color="green">
+                <v-icon left>save</v-icon>save
               </v-btn>
             </v-card-title>
             <v-card-text v-if="setting">
@@ -115,7 +123,7 @@
                         <v-flex sm4>
                           <v-select
                             :items="options"
-                            :value="setting.record_inbox"
+                            v-model="setting.record_inbox"
                             flat
                             dense
                             :readonly="!update"
@@ -131,7 +139,7 @@
                         <v-flex sm4>
                           <v-select
                             :items="options"
-                            :value="setting.auto_read"
+                            v-model="setting.auto_read"
                             flat
                             dense
                             :readonly="!update"
@@ -163,7 +171,7 @@
                                 v-on="on"
                               ></v-text-field>
                             </template>
-                            <v-time-picker v-model="setting.auto_reboot" full-width format="24hr">
+                            <v-time-picker v-model="setting.auto_reboot" full-width format="24hr" use-seconds>
                               <v-spacer></v-spacer>
                               <v-btn flat color="primary" @click="dialog.reboot = false">Cancel</v-btn>
                               <v-btn
@@ -218,6 +226,7 @@
                               v-model="setting.send_schedule_from"
                               full-width
                               format="24hr"
+                              use-seconds
                             >
                               <v-spacer></v-spacer>
                               <v-btn flat color="primary" @click="dialog.from = false">Cancel</v-btn>
@@ -252,6 +261,7 @@
                               v-model="setting.send_schedule_to"
                               full-width
                               format="24hr"
+                              use-seconds
                             >
                               <v-spacer></v-spacer>
                               <v-btn flat color="primary" @click="dialog.to = false">Cancel</v-btn>
@@ -308,7 +318,8 @@ export default {
       options: [
         { text: "Active", value: true },
         { text: "Non Active", value: false }
-      ]
+      ],
+      newsetting: {}
     };
   },
   mounted() {
@@ -328,7 +339,7 @@ export default {
       return this.getNumber(this.getId);
     },
     setting() {
-      return this.getSetting(this.getId);
+      return this.update ? this.newsetting : this.getSetting(this.getId);
     }
   },
   methods: {
@@ -345,9 +356,21 @@ export default {
       });
       this.$store.dispatch("numbers/GET_NUMBERS");
     },
-    scan(){
+    scan() {
       this.$store.dispatch("numbers/SCAN_QRCODE", this.getId);
       this.qrcode = this.getqrcode(this.getId);
+    },
+    onUpdate() {
+      this.newsetting = Object.assign({}, this.getSetting(this.getId));
+      this.update = true;
+    },
+    onSave() {
+      console.log("update");
+      if (this.update) {
+        this.$store.dispatch("numbers/UPDATE_NUMBER_SETTING", this.setting);
+        console.log(this.newsetting);
+        this.update = false;
+      }
     }
   }
 };

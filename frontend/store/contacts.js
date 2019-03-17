@@ -83,5 +83,23 @@ export const getters = {
     },
     categoryById(state) {
         return (id) => state.category.find(cat => cat.id === id)
+    },
+    locations(state) {
+        let locationlist = new Set();
+        state.list.map(contact => {
+            if (contact.location) {
+                locationlist.add(contact.location)
+            }
+        })
+        return [...locationlist]
+    },
+    professions(state) {
+        let professionlist = new Set();
+        state.list.map(contact => {
+            if (contact.profession) {
+                professionlist.add(contact.profession)
+            }
+        })
+        return [...professionlist]
     }
 }

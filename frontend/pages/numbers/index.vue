@@ -161,6 +161,9 @@ export default {
   },
   mounted() {
     this.$store.dispatch("numbers/GET_NUMBERS");
+    this.items.map(number => {
+      this.$store.dispatch("numbers/GET_NUMBER_SETTING", number.id);
+    })
   },
   computed: {
     ...mapGetters({ items: "numbers/numbers", user: "loggedInUser" })
