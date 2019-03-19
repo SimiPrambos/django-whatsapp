@@ -8,10 +8,7 @@ six
 typing
 numpy
 python-magic
-# django
 django
 djangorestframework
 django-cors-headers
 djoser
-djangorestframework-csv
-django-background-tasks

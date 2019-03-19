@@ -37,15 +37,6 @@
               <div v-else>
                 <v-layout row wrap>
                   <v-flex sm6>
-                    <v-select
-                      v-model="myFilter.category"
-                      :items="selectCategory"
-                      label="Category"
-                      prepend-icon="contacts"
-                      @change="setFilter(myFilter.category, 'cat')"
-                    ></v-select>
-                  </v-flex>
-                  <v-flex sm6>
                     <v-autocomplete
                       v-model="myFilter.gender"
                       :items="selectGender"
@@ -141,7 +132,6 @@ export default {
     multiple: false,
     filterBy: [],
     myFilter: {
-      category: null,
       gender: "",
       location: "",
       profession: "",
@@ -158,8 +148,8 @@ export default {
   mounted() {
     this.$store.dispatch("numbers/GET_NUMBERS");
     this.$store.dispatch("contacts/GET_CONTACTS");
-    this.$store.dispatch("contacts/GET_CATEGORY");
     this.$store.dispatch("media/GET_MEDIA");
+    this.filteredContact = this.contacts;
   },
   computed: {
     ...mapGetters({
@@ -167,8 +157,6 @@ export default {
       contacts: "contacts/contacts",
       locations: "contacts/locations",
       professions: "contacts/professions",
-      category: "contacts/category",
-      contactsByCategory: "contacts/contactsByCategory",
       media: "media/media"
     }),
     currentTitle() {
@@ -189,13 +177,6 @@ export default {
         numberlist.push({ text: number.lable, value: number.id });
       });
       return numberlist;
-    },
-    selectCategory() {
-      let categorylist = [];
-      this.category.map(cat => {
-        categorylist.push({ text: cat.name, value: cat.id });
-      });
-      return categorylist;
     },
     selectMedia() {
       let medialist = [];
@@ -236,7 +217,7 @@ export default {
       let contacts = [];
       this.multiple
         ? this.filteredContact.map(contact => {
-            contacts.push(this.validateNumber(contact.number));
+            contacts.push(contact.number);
           })
         : contacts.push(this.validateNumber(this.messages.to));
       contacts.map(contact => {
@@ -251,9 +232,6 @@ export default {
     setFilter(value, type) {
       let index = null;
       switch (type) {
-        case "cat":
-          index = 0;
-          break;
         case "gen":
           index = 1;
           break;
@@ -272,9 +250,6 @@ export default {
     filterContact() {
       this.filteredContact = this.contacts.filter(contact => {
         return this.filterBy.every(filterby => {
-          if (contact.category && contact.category.includes(filterby)) {
-            return contact.category.includes(filterby);
-          }
           if (contact.gender && contact.gender.includes(filterby)) {
             return contact.gender.includes(filterby);
           }

@@ -257,13 +257,13 @@ export default {
   }),
   mounted() {
     this.$store.dispatch("contacts/GET_CONTACTS");
-    this.$store.dispatch("contacts/GET_CATEGORY");
+    // this.$store.dispatch("contacts/GET_CATEGORY");
   },
   computed: {
     ...mapGetters({
       contacts: "contacts/contacts",
-      contactsByCategory: "contacts/contactsByCategory",
-      category: "contacts/category"
+      // contactsByCategory: "contacts/contactsByCategory",
+      // category: "contacts/category"
     }),
     selectCategory() {
       let listcategory = [];
@@ -325,6 +325,12 @@ export default {
         }
       });
       this.loadfile = false;
+      this.$refs.importcontact.close();
+    },
+    newImportContacts() {
+      this.loadfile = true
+      this.$store.dispatch("IMPORT_CONTACTS", this.file);
+      this.loadfile = false
       this.$refs.importcontact.close();
     }
   }

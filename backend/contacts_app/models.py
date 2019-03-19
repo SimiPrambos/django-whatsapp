@@ -3,8 +3,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from driver_manager.drivers import status_number
 from numbers_app.models import WhatsappNumbers
+import phonenumbers
 
 class GenderChoices(Enum):
     M = 'Man'
@@ -12,28 +12,17 @@ class GenderChoices(Enum):
     O = 'Other'
 
 
-class ContactsCategory(models.Model):
-    class Meta:
-        db_table = 'category'
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
-
-
 class Contacts(models.Model):
     class Meta:
         db_table = 'contacts'
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    category = models.ManyToManyField(to=ContactsCategory, related_name='contacts')
     
     name = models.CharField(max_length=50, blank=True, null=True)
     number = models.CharField(max_length=50)
-    is_active = models.BooleanField(default=False)
-    is_validated = models.BooleanField(default=False)
+    country = models.CharField(max_length=3)
+    is_whatsapp_number = models.BooleanField(default=False)
+    is_phone_number = models.BooleanField(default=False)
     
     # opsional
     gender = models.CharField(
@@ -54,10 +43,18 @@ class Contacts(models.Model):
         return self.number+'@c.us' if not '@c.us' in self.number else self.number
 
 
-@receiver(signal=post_save, sender=User)
-def create_default_category(sender, instance, created, **kwargs):
+@receiver(signal=post_save, sender=Contacts)
+def validating_phone_number(sender, instance, created, **kwargs):
     if created:
-        ContactsCategory.objects.create(
-            user_id=instance.id,
-            name="default"
-        )
+        phone = instance.number
+        is_valid = False
+        try:
+            parsed = phonenumbers.parse(phone, instance.country.upper())
+            is_valid = phonenumbers.is_valid_number(parsed)
+            if is_valid:
+                phone = parsed
+        except:
+            pass
+        instance.number = phone
+        instance.is_phone_number = is_valid
+        instance.save()
