@@ -12,3 +12,4 @@ django
 djangorestframework
 django-cors-headers
 djoser
+phonenumberslite
