@@ -12,7 +12,7 @@ class UsersMediaViewset(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
-        queryset = super(UsersMediaViewset, self).get_queryset()
+        queryset = super(UsersMediaViewset, self).get_queryset().order_by('-created')
         queryset = queryset.filter(user_id=self.request.user.id)
         return queryset
 

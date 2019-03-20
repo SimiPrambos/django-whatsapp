@@ -22,7 +22,7 @@ class NumbersViewset(generics.ListCreateAPIView):
         serializer.save(user_id=user.id)
 
     def get(self, request):
-        queryset = self.get_queryset().filter(user__api_key__api_key=request.apikey)
+        queryset = self.get_queryset().filter(user__api_key__api_key=request.apikey).order_by('created_at')
         serializer = NumbersSerializer(queryset, many=True)
         return Response(serializer.data)
 

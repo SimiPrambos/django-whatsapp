@@ -13,3 +13,4 @@ djangorestframework
 django-cors-headers
 djoser
 phonenumberslite
+unicodecsv

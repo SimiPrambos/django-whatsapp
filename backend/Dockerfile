@@ -9,7 +9,7 @@ COPY . $APP_HOME/
 
 RUN pip3 install -r requirements.txt
 
-RUN python3 manage.py makemigrations numbers_app messages_app contacts_app users_auth media_app
+RUN python3 manage.py makemigrations numbers_app messages_app contacts_app users_auth media_app users_setting
 RUN python3 manage.py migrate
 
 CMD tail -f /dev/null

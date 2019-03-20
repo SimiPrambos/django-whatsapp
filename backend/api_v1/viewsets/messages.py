@@ -25,7 +25,7 @@ class WhatsappChatViewset(generics.ListCreateAPIView):
     def get(self, request, pk):
         queryset = self.get_queryset().filter(
             number_id=pk, number__user__api_key__api_key=request.apikey
-        )
+        ).order_by('-message_timestamp')
         serializer = WhatsappChatSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -60,7 +60,7 @@ class WhatsappMediaViewset(generics.ListCreateAPIView):
     def get(self, request, pk):
         queryset = self.get_queryset().filter(
             number_id=pk, number__user__api_key__api_key=request.apikey
-        )
+        ).order_by('-message_timestamp')
         serializer = WhatsappMediaSerializer(queryset, many=True)
         return Response(serializer.data)
 

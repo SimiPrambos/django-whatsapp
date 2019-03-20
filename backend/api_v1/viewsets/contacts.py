@@ -22,7 +22,7 @@ class ContactsViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super(ContactsViewset, self).get_queryset()
-        queryset = queryset.filter(user_id=self.request.user.id)
+        queryset = queryset.filter(user_id=self.request.user.id).order_by('-created')
         return queryset
 
     def create(self, request):
@@ -47,6 +47,7 @@ class ContactsViewset(viewsets.ModelViewSet):
                 data.append(row_data)
         except:
             pass
+        print(data)
         serializer = ContactsSerializer(data=data, many=True)
         serializer.is_valid(raise_exception=True)
         serializer.save(user_id=request.user.id)

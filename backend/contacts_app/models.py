@@ -1,4 +1,5 @@
 from enum import Enum
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -28,19 +29,19 @@ class Contacts(models.Model):
     gender = models.CharField(
         max_length=1, 
         choices=[(tag.name, tag.value) for tag in GenderChoices],
-        default='O'
+        default='O', blank=True, null=True
     )
     location = models.CharField(max_length=50, blank=True, null=True)
     profession = models.CharField(max_length=50, blank=True, null=True)
-    birthday = models.DateField(blank=True, null=True)
-
+    birthday = models.DateField(default=timezone.now().date(), blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.number
+        return str(self.number)
     
     @property
     def get_chatid(self):
-        return self.number+'@c.us' if not '@c.us' in self.number else self.number
+        return str(self.number)+'@c.us' if not '@c.us' in str(self.number) else str(self.number)
 
 
 @receiver(signal=post_save, sender=Contacts)
@@ -49,10 +50,10 @@ def validating_phone_number(sender, instance, created, **kwargs):
         phone = instance.number
         is_valid = False
         try:
-            parsed = phonenumbers.parse(phone, instance.country.upper())
+            parsed = phonenumbers.parse(phone, str(instance.country).upper())
             is_valid = phonenumbers.is_valid_number(parsed)
             if is_valid:
-                phone = parsed
+                phone = "{}{}".format(parsed.country_code, parsed.national_number)
         except:
             pass
         instance.number = phone

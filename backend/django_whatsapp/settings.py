@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'contacts_app',
     'messages_app',
     'media_app',
+    'users_setting',
 
     'api_v1',
     'driver_manager',
