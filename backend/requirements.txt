@@ -1,4 +1,3 @@
-# whatsapp
 python-dateutil >= 2.6.0
 selenium >= 3.4.3
 python-axolotl
@@ -14,3 +13,4 @@ django-cors-headers
 djoser
 phonenumberslite
 unicodecsv
+requests

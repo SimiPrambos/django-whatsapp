@@ -54,6 +54,7 @@
                   :items="items"
                   :search="search"
                   hide-actions
+                  dense
                   class="elevation-0 table-striped"
                 >
                   <template slot="items" slot-scope="props">

@@ -1,10 +1,11 @@
 from enum import Enum
 from django.db import models
-# from django.db.models.signals import post_save
-# from django.dispatch import receiver
 
 def get_chatid(number):
     return number+'@c.us' if not '@c.us' in number else number
+
+def get_number(chatid):
+    return chatid.replace('@c.us', '') if '@c.us' in chatid else chatid
 
 class MessageType(Enum):
     IN = 'Inbox'
@@ -33,6 +34,10 @@ class WhatsappChatMessages(models.Model):
     def get_chatid(self):
         return get_chatid(self.message_number)
 
+    @property
+    def get_number(self):
+        return get_number(self.message_number)
+
     def __str__(self):
         return self.message_number
 
@@ -55,30 +60,3 @@ class WhatsappMediaMessages(models.Model):
 
     def __str__(self):
         return self.message_number
-
-# @receiver(post_save, sender=WhatsappChatMessages)
-# def sending_text_message(sender, instance, created, **kwargs):
-#     if created and instance.message_type == 'OUT':
-#         HandleSendMessage(
-#             id=instance.number.id,
-#             instance=instance,
-#             media=False,
-#             **dict(
-#                 to=instance.get_chatid,
-#                 content=instance.message_content
-#             )
-#         ).start()
-
-# @receiver(post_save, sender=WhatsappMediaMessages)
-# def sending_media_message(sender, instance, created, **kwargs):
-#     if created and instance.message_type == 'OUT':
-#         HandleSendMessage(
-#             id=instance.number.id,
-#             instance=instance,
-#             media=True,
-#             **dict(
-#                 to=instance.get_chatid,
-#                 caption=instance.message_content,
-#                 file=instance.message_media.filepath.path
-#             )
-#         ).start()

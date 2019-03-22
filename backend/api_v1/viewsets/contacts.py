@@ -38,16 +38,21 @@ class ContactsViewset(viewsets.ModelViewSet):
         if file and not file.name.rsplit('.')[-1] == 'csv':
             return Response({"detail":"File type is not allowed. make sure your file is csv format."}, status=400)
         data = None
+        # try:
+        binary = universal_newlines(file.read())
+        delimiter = ','
         try:
-            binary = universal_newlines(file.read())
-            rows = unicode_csv_reader(binary, delimiter=',', charset='utf-8')
+            if str(binary).find(",")!=-1:
+                delimiter = ','
+            elif str(binary).find(";")!=-1:
+                delimiter = ";"
+            rows = unicode_csv_reader(binary, delimiter=delimiter, charset='utf-8')
             data = OrderedRows(next(rows))
             for row in rows:
                 row_data = dict(zip(data.header, row))
                 data.append(row_data)
         except:
             pass
-        print(data)
         serializer = ContactsSerializer(data=data, many=True)
         serializer.is_valid(raise_exception=True)
         serializer.save(user_id=request.user.id)

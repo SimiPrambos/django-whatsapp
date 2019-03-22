@@ -1,7 +1,4 @@
-# drf
 from rest_framework import serializers
-
-# numbers_app models
 from numbers_app.models import WhatsappNumbers, NumberSettings
 from driver_manager.drivers import status_instance
 

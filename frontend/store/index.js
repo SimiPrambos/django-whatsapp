@@ -26,5 +26,5 @@ export const getters = {
 }
 
 export const plugins = [createPersistedState({
-  paths: ["numbers", "messages", "contacts", "media"]
+  paths: ["numbers", "messages", "contacts", "media", "settings"]
 })]

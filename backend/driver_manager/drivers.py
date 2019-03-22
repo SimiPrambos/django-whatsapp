@@ -114,7 +114,7 @@ def outbound_message_background(id):
             chat.save()
         for index, chat in enumerate(chats, start=1):
             print("processing message with id :", index)
-            time.sleep(random.randint(1, max_delay))
+            time.sleep(random.randint(max_delay/2, max_delay))
             send = HandleSendMessage(id=id, instance=chat)
             send.start()
             send.join()

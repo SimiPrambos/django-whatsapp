@@ -1,0 +1,1 @@
+default_app_config = 'numbers_app.apps.NumbersAppConfig'
