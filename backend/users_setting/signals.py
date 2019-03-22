@@ -7,7 +7,7 @@ from .models import Setting, Webhook
 @receiver(signal=post_save, sender=User)
 def create_setting(sender, instance, created, **kwargs):
     if created:
-        Setting.object.create(user=instance.id)
+        Setting.objects.create(user_id=instance.id)
 
 @receiver(signal=pre_save, sender=Webhook)
 def start_hook(sender, instance, **kwargs):
