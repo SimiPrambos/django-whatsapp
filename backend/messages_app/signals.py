@@ -8,8 +8,8 @@ from users_setting.models import Setting, Webhook
 def creating_hook(sender, instance, created, **kwargs):
     if created:
         instance.message_number = instance.get_number
-        if instance.message_type == 'IN':
-            setting = Setting.objects.get(user_id=instance.number.user.id)
+        setting = Setting.objects.get(user_id=instance.number.user.id)
+        if instance.message_type == 'IN' and (setting.webhook_enable and setting.webhook_url):
             Webhook.objects.create(
                 setting_id=setting.id,
                 event="Inbox",

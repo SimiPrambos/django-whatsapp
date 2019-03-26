@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_delete, post_save
 from driver_manager.drivers import delete_client
-from .models import WhatsappNumbers
+from .models import WhatsappNumbers, NumberSettings
 
 @receiver(post_delete, sender=WhatsappNumbers)
 def on_number_delete(sender, instance, **kwargs):

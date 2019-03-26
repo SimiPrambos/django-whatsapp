@@ -11,21 +11,17 @@ def create_setting(sender, instance, created, **kwargs):
 
 @receiver(signal=pre_save, sender=Webhook)
 def start_hook(sender, instance, **kwargs):
-    if instance.setting.webhook_enable and instance.setting.webhook_url:
-        payload = dict(
-            event=instance.event,
-            data=json.loads(instance.data)
-        )
-        headers = {
-            "Content-Type":"application/json",
-            "accept":"application/json"
-        }
-        response = requests.post(
-            instance.setting.webhook_url,
-            headers=headers,
-            data=json.dumps(payload)
-        )
-
-        instance.status = response.status_code
-    else:
-        instance.delete()
+    payload = dict(
+        event=instance.event,
+        data=json.loads(instance.data)
+    )
+    headers = {
+        "Content-Type":"application/json",
+        "accept":"application/json"
+    }
+    response = requests.post(
+        instance.setting.webhook_url,
+        headers=headers,
+        data=json.dumps(payload)
+    )
+    instance.status = response.status_code

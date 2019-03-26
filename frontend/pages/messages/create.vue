@@ -18,15 +18,24 @@
               <v-select
                 v-model="messages.from"
                 :items="selectNumbers"
-                label="Select your number"
+                label="Choose your whatsapp number"
+                hint="you can select more then one."
+                persistent-hint
                 prepend-icon="mdi-whatsapp"
+                multiple
+                chips
+                @change="messages.from.length > 1? multiple = true : multiple = false"
               ></v-select>
             </v-card-text>
           </v-window-item>
 
           <v-window-item :value="2">
             <v-card-text>
-              <v-checkbox v-model="multiple" label="Multiple?"></v-checkbox>
+              <v-checkbox
+                v-model="multiple"
+                label="Multiple contact?"
+                :disabled="messages.from.length > 1"
+              ></v-checkbox>
               <div v-if="!multiple">
                 <vue-tel-input
                   v-model="messages.to"
@@ -73,19 +82,43 @@
 
           <v-window-item :value="3">
             <v-card-text>
-              <v-textarea
-                v-model="messages.content"
-                label="Input message"
-                auto-grow
-                clearable
-                prepend-inner-icon="edit"
-              ></v-textarea>
-              <v-select
-                v-model="messages.media"
-                :items="selectMedia"
-                label="With media file (optional)"
-                prepend-inner-icon="perm_media"
-              ></v-select>
+              <v-layout row wrap>
+                <v-flex lg6 sm6 xs12 v-for="(item, index) in messages.content" :key="index">
+                  <v-card>
+                    <v-card-text>
+                      <v-textarea
+                        v-model="messages.content[index].text"
+                        :label="'Message '+(index+1)"
+                        auto-grow
+                        clearable
+                      ></v-textarea>
+                      <v-select
+                        v-model="messages.content[index].media"
+                        :items="selectMedia"
+                        label="With media file (optional)"
+                        prepend-inner-icon="perm_media"
+                      ></v-select>
+                      <v-btn
+                        flat
+                        outline
+                        block
+                        color="red"
+                        @click="messages.content.splice(index, 1)"
+                        :disabled="messages.content.length <= 1"
+                      >remove</v-btn>
+                    </v-card-text>
+                  </v-card>
+                </v-flex>
+                <v-flex lg12 sm12 xs12>
+                  <v-btn
+                    flat
+                    outline
+                    color="blue"
+                    @click="messages.content.push({text:'Hello, how are you?', media:null})"
+                    :disabled="!multiple"
+                  >add more message</v-btn>
+                </v-flex>
+              </v-layout>
             </v-card-text>
           </v-window-item>
         </v-window>
@@ -139,10 +172,9 @@ export default {
     },
     filteredContact: [],
     messages: {
-      from: null,
-      media: null,
+      from: [],
       to: null,
-      content: null
+      content: [{ text: "Hello, are you fine?", media: null }]
     }
   }),
   mounted() {
@@ -202,31 +234,104 @@ export default {
     },
     clear() {
       this.multiple = false;
-      this.messages.from = null;
+      this.messages.from = [];
       this.messages.to = null;
-      this.messages.media = null;
-      this.messages.content = null;
+      this.messages.content = [{ text: "Hello, are you fine?", media: null }];
       this.step = 1;
     },
     send() {
-      let payload = {
-        numberId: this.messages.from,
-        media: this.messages.media,
-        messages: []
-      };
-      let contacts = [];
-      this.multiple
-        ? this.filteredContact.map(contact => {
-            contacts.push(contact.number);
-          })
-        : contacts.push(this.validateNumber(this.messages.to));
-      contacts.map(contact => {
-        payload.messages.push({
-          message_number: contact,
-          message_content: this.messages.content
+      if (this.multiple) {
+        let from = this.messages.from;
+        let to = this.filteredContact;
+        let contents = this.messages.content;
+
+        let withMedia = [];
+        let nonMedia = [];
+
+        let div = parseInt(to.length / from.length);
+        let rem = to.length % from.length;
+        let nStep = 1;
+        let cStep = 0;
+
+        from.map((number, nIndex) => {
+          let wMedia = {
+            numberId: number,
+            messages: []
+          };
+          let nMedia = {
+            numberId: number,
+            messages: []
+          };
+          to.map((contact, cIndex) => {
+            if (cIndex >= cStep && cIndex < div * nStep) {
+              let content =
+                contents[
+                  Math.floor(Math.random() * Math.floor(contents.length))
+                ];
+              let message = {
+                message_number: contact.number,
+                message_content: content.text
+              };
+              if (content.media) {
+                message["message_media"] = content.media;
+                wMedia.messages.push(message);
+              } else {
+                nMedia.messages.push(message);
+              }
+              cStep++;
+            }
+          });
+
+          nStep++;
+          if (nIndex === from.length - 1) {
+            if (rem > 0) {
+              to.slice(to.length - rem).map(contact => {
+                let content =
+                  contents[
+                    Math.floor(Math.random() * Math.floor(contents.length))
+                  ];
+                let message = {
+                  message_number: contact.number,
+                  message_content: content.text
+                };
+                if (content.media) {
+                  message["message_media"] = content.media;
+                  wMedia.messages.push(message);
+                } else {
+                  nMedia.messages.push(message);
+                }
+              });
+            }
+          }
+          withMedia.push(wMedia);
+          nonMedia.push(nMedia);
         });
-      });
-      this.$store.dispatch("messages/POST_MESSAGES", payload);
+
+        nonMedia.map(messages => {
+          if (messages)
+            this.$store.dispatch("messages/POST_TEXT_MESSAGE", messages);
+        });
+        withMedia.map(messages => {
+          if (messages)
+            this.$store.dispatch("messages/POST_MEDIA_MESSAGE", messages);
+        });
+      } else {
+        let payload = {
+          numberId: this.messages.from[0],
+          messages: [
+            {
+              message_number: this.validateNumber(this.messages.to),
+              message_content: this.messages.content[0].text
+            }
+          ]
+        };
+        if (this.messages.content[0].media) {
+          payload.messages["message_media"] = this.messages.content[0].media;
+          this.$store.dispatch("messages/POST_MEDIA_MESSAGE", payload);
+        } else {
+          this.$store.dispatch("messages/POST_TEXT_MESSAGE", payload);
+        }
+      }
       this.clear();
     },
     setFilter(value, type) {

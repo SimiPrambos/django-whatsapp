@@ -40,7 +40,7 @@
               </v-data-table>
             </v-card-text>
             <v-card-actions>
-              <v-btn flat block outline color="red">REMOVE THIS NUMBER</v-btn>
+              <v-btn flat block outline color="red" @click="onDelete">REMOVE THIS NUMBER</v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>
@@ -171,7 +171,12 @@
                                 v-on="on"
                               ></v-text-field>
                             </template>
-                            <v-time-picker v-model="setting.auto_reboot" full-width format="24hr" use-seconds>
+                            <v-time-picker
+                              v-model="setting.auto_reboot"
+                              full-width
+                              format="24hr"
+                              use-seconds
+                            >
                               <v-spacer></v-spacer>
                               <v-btn flat color="primary" @click="dialog.reboot = false">Cancel</v-btn>
                               <v-btn
@@ -371,6 +376,10 @@ export default {
         console.log(this.newsetting);
         this.update = false;
       }
+    },
+    onDelete() {
+      this.$store.dispatch("numbers/DELETE_NUMBERS", this.getId);
+      this.$router.push('/numbers')
     }
   }
 };

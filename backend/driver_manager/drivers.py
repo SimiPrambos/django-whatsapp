@@ -105,6 +105,7 @@ def outbound_message_background(id):
         on_progress=False
     )
     max_delay = get_max_delay(id)
+    max_delay = 2 if max_delay <= 2 else max_delay
     
     if chats:
         print("Got Pending messgage : ", len(chats))
@@ -114,7 +115,7 @@ def outbound_message_background(id):
             chat.save()
         for index, chat in enumerate(chats, start=1):
             print("processing message with id :", index)
-            time.sleep(random.randint(max_delay/2, max_delay))
+            time.sleep(random.randint(max_delay//2, max_delay))
             send = HandleSendMessage(id=id, instance=chat)
             send.start()
             send.join()
@@ -130,7 +131,8 @@ def delete_client(id, remove_cache):
 
     if remove_cache:
         path = settings.CHROME_CACHE_PATH + str(id)
-        shutil.rmtree(path)
+        if os.path.exists(path):
+            shutil.rmtree(path)
 
 
 def acquire_semaphore(id, cancel_if_locked=False):

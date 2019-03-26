@@ -52,6 +52,13 @@ const Menu = [
   },
   { header: 'Settings' },
   {
+    title: 'Account',
+    group: 'settings',
+    icon: 'mdi-account-settings',
+    name: 'Account',
+    href: '/settings/account'
+  },
+  {
     title: 'Webhook',
     group: 'settings',
     icon: 'mdi-webhook',

@@ -2,7 +2,7 @@
   <div id="pageMessages">
     <v-container grid-list-xl fluid>
       <v-layout row wrap>
-        <v-flex lg10 sm10 xs10>
+        <v-flex>
           <v-card>
             <v-progress-linear :height="loading" :indeterminate="true"></v-progress-linear>
             <v-toolbar card dense color="transparent">
@@ -24,8 +24,8 @@
                   :headers="headers"
                   :items="items(messageType)"
                   :search="search"
-                  hide-actions
-                  class="elevation-0 table-striped"
+                  item-key="id"
+                  class="elevation-1 table-striped"
                 >
                   <template slot="items" slot-scope="props">
                     <tr
@@ -67,7 +67,7 @@
             <span class="headline">Message Detail</span>
           </v-card-title>
           <v-card-text>
-            <h5>Number  : {{selected.number}}</h5>
+            <h5>Number : {{selected.number}}</h5>
             <h5>Message : {{selected.message}}</h5>
           </v-card-text>
           <v-card-actions>
@@ -163,7 +163,11 @@ export default {
       return string ? new Date(string).toLocaleDateString() : "";
     },
     formateTime(string) {
-      return string ? new Date(string).toLocaleTimeString() : "";
+      return string
+        ? new Date(string).toLocaleTimeString(navigator.language, {
+            hour12: false
+          })
+        : "";
     },
     detailMessage(number, message) {
       this.selected.number = number;

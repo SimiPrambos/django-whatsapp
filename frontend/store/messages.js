@@ -15,23 +15,23 @@ export const actions = {
         let { data } = await this.$axios.get("messages/")
         commit("SET_MESSAGES", data)
     },
-    POST_MESSAGES({ rootState, commit }, payload) {
-        let messgaeType = () => {
-            if (payload.media) {
-                payload.messages.map(message => {
-                    Object.assign(message, { message_media: payload.media })
-                })
-                return "media"
-            } else {
-                return "chats"
-            }
-        }
+    POST_TEXT_MESSAGE({ rootState, commit }, payload) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        this.$axios.post(`numbers/${payload.numberId}/${messgaeType()}/`, payload.messages, { progress: true }).then(response => {
-            if (response.status === 201) {
-                commit("ADD_MESSAGES", response.data)
-            }
-        })
+        this.$axios.post(`numbers/${payload.numberId}/chats/`, payload.messages, { progress: true })
+            .then(response => {
+                if (response.status === 201) {
+                    commit("ADD_MESSAGES", response.data)
+                }
+            })
+    },
+    POST_MEDIA_MESSAGE({ rootState, commit }, payload) {
+        this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
+        this.$axios.post(`numbers/${payload.numberId}/media/`, payload.messages, { progress: true })
+            .then(response => {
+                if (response.status === 201) {
+                    commit("ADD_MESSAGES", response.data)
+                }
+            })
     }
 }
 

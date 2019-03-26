@@ -8,7 +8,7 @@ const DefaultState = () => {
 export const state = DefaultState()
 
 export const actions = {
-    async GET_CONTACTS({commit }) {
+    async GET_CONTACTS({ commit }) {
         await this.$axios.get("contacts/").then(response => {
             if (response.status === 200) {
                 commit("SET_CONTACTS", response.data)
@@ -22,7 +22,7 @@ export const actions = {
             }
         })
     },
-    async DELETE_CONTACTS({ rootState, commit }, payload) {
+    async DELETE_CONTACTS({ commit }, payload) {
         await payload.map(contact => {
             this.$axios.delete(`contacts/${contact.id}/`).then(response => {
                 if (response.status === 204) {
@@ -31,9 +31,8 @@ export const actions = {
             })
         })
     },
-    IMPORT_CONTACTS({ rootState, commit }, payload) {
+    IMPORT_CONTACTS({ commit }, payload) {
         this.$axios.post(`contacts/upload/`, payload).then(response => {
-            console.log(response.data)
             if (response.status === 201) {
                 commit("ADD_CONTACTS", response.data)
             }
