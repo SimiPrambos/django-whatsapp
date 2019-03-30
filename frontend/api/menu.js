@@ -50,6 +50,13 @@ const Menu = [
     name: 'Outbox',
     href: '/messages/outbox'
   },
+  {
+    title: 'Friends',
+    group: 'messages',
+    icon: 'mdi-contact-mail',
+    name: 'Friends',
+    href: '/messages/friends'
+  },
   { header: 'Settings' },
   {
     title: 'Account',

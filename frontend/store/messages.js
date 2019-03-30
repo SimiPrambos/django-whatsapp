@@ -1,6 +1,7 @@
 const DefaultState = () => {
     return {
-        list: []
+        list: [],
+        friends: []
     }
 }
 
@@ -10,10 +11,13 @@ export const actions = {
     RESET_STATE({ commit }) {
         commit('RESET_MESSAGES')
     },
-    async GET_MESSAGES({ rootState, commit }) {
+    GET_MESSAGES({ rootState, commit }) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        let { data } = await this.$axios.get("messages/")
-        commit("SET_MESSAGES", data)
+        this.$axios.get("messages/").then(response => {
+            if (response.status === 200) {
+                commit("SET_MESSAGES", response.data)
+            }
+        })
     },
     POST_TEXT_MESSAGE({ rootState, commit }, payload) {
         this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
@@ -32,6 +36,37 @@ export const actions = {
                     commit("ADD_MESSAGES", response.data)
                 }
             })
+    },
+    GET_FRIEND_MESSAGES({ commit }) {
+        this.$axios.get("friend-messages/").then(response => {
+            if (response.status === 200) {
+                commit("SET_FRIEND_MESSAGES", response.data)
+            }
+        })
+    },
+    POST_FRIEND_MESSAGE({ commit }, payload) {
+        this.$axios.post("friend-messages/", payload, { progress: true })
+            .then(response => {
+                if (response.status === 201) {
+                    commit("ADD_FRIEND_MESSAGE", response.data)
+                }
+            })
+    },
+    PUT_FRIEND_MESSAGE({ commit }, payload) {
+        this.$axios.put(`friend-messages/${payload.id}/`, payload.message, { progress: true })
+            .then(response => {
+                if (response.status === 200) {
+                    commit("UPDATE_FRIEND_MESSAGE", response.data)
+                }
+            })
+    },
+    DELETE_FRIEND_MESSAGE({ commit }, id) {
+        this.$axios.delete(`friend-messages/${id}/`, { progress: true })
+            .then(response => {
+                if (response.status === 204) {
+                    commit("REMOVE_FRIEND_MESSAGE", id)
+                }
+            })
     }
 }
 
@@ -39,11 +74,24 @@ export const mutations = {
     RESET_MESSAGES(state) {
         Object.assign(state, DefaultState())
     },
-    SET_MESSAGES(state, messages) {
-        state.list = messages
+    SET_MESSAGES(state, payload) {
+        state.list = payload
     },
-    ADD_MESSAGES(state, messages) {
-        state.list.push(messages)
+    ADD_MESSAGES(state, payload) {
+        state.list.push(payload)
+    },
+    SET_FRIEND_MESSAGES(state, payload) {
+        state.friends = payload
+    },
+    ADD_FRIEND_MESSAGE(state, payload) {
+        state.friends.push(payload)
+    },
+    UPDATE_FRIEND_MESSAGE(state, payload) {
+        state.friends.find(friend => friend.id === payload.id).message = payload.message
+    },
+    REMOVE_FRIEND_MESSAGE(state, id){
+        let index = state.friends.findIndex(friend => friend.id === id)
+        state.friends.splice(index, 1)
     }
 }
 
@@ -62,5 +110,8 @@ export const getters = {
     },
     messagesById(state) {
         return (id) => state.list.filter(message => message.id === id)
+    },
+    friendMessages(state) {
+        return state.friends
     }
 }

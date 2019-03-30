@@ -55,7 +55,7 @@ export const mutations = {
 
 export const getters = {
     contacts(state) {
-        return state.list
+        return state.list.filter(contact => !contact.is_friend)
     },
     locations(state) {
         let locationlist = new Set();
@@ -74,5 +74,17 @@ export const getters = {
             }
         })
         return [...professionlist]
+    },
+    additionals(state) {
+        let additionallist = new Set();
+        state.list.map(contact => {
+            if (contact.additional) {
+                additionallist.add(contact.additional)
+            }
+        })
+        return [...additionallist]
+    },
+    friends(state) {
+        return state.list.filter(contact => contact.is_friend)
     }
 }

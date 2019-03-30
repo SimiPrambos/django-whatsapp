@@ -4,7 +4,6 @@
       <v-layout row wrap>
         <v-flex>
           <v-card>
-            <v-progress-linear :height="loading" :indeterminate="true"></v-progress-linear>
             <v-toolbar card dense color="transparent">
               <v-toolbar-title>
                 <h4>Message List</h4>
@@ -17,6 +16,10 @@
                 single-line
                 hide-details
               ></v-text-field>
+              <v-spacer></v-spacer>
+              <v-btn flat large icon @click="refresh">
+                <v-icon>refresh</v-icon>
+              </v-btn>
             </v-toolbar>
             <v-card-text class="pa-0">
               <template>
@@ -102,7 +105,9 @@ export default {
     };
   },
   mounted() {
-    this.$store.dispatch("messages/GET_MESSAGES");
+    if (!this.items(this.messageType)) {
+      this.$store.dispatch("messages/GET_MESSAGES");
+    }
   },
   computed: {
     ...mapGetters({ items: "messages/messagesByType" }),
@@ -173,6 +178,9 @@ export default {
       this.selected.number = number;
       this.selected.message = message;
       this.dialog = true;
+    },
+    refresh() {
+      this.$store.dispatch("messages/GET_MESSAGES");
     }
   }
 };

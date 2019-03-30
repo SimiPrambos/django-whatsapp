@@ -30,6 +30,10 @@
                     <td class="text-xs-left subheading">{{formateDate(user.date_joined)}}</td>
                   </tr>
                   <tr>
+                    <td class="text-xs-left subheading">Status</td>
+                    <td class="text-xs-left subheading">{{user.is_active?'Activated':'Deactivated'}}</td>
+                  </tr>
+                  <tr>
                     <td class="text-xs-left subheading">Api Key</td>
                     <td class="text-xs-left subheading">{{user.api_key}}</td>
                   </tr>

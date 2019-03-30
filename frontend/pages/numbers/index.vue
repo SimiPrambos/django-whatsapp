@@ -118,6 +118,7 @@ import { mapGetters } from "vuex";
 
 export default {
   layout: "dashboard",
+  middleware: ["auth","HasApiAccess"],
   data() {
     return {
       headers: [
@@ -164,7 +165,7 @@ export default {
     this.$store.dispatch("numbers/GET_NUMBERS");
     this.items.map(number => {
       this.$store.dispatch("numbers/GET_NUMBER_SETTING", number.id);
-    })
+    });
   },
   computed: {
     ...mapGetters({ items: "numbers/numbers", user: "loggedInUser" })
@@ -191,13 +192,19 @@ export default {
     save() {
       let payload = {
         lable: this.newnumber.name,
-        number: this.newnumber.number
+        number: this.validateNumber(this.newnumber.number)
       };
       this.$store.dispatch("numbers/POST_NUMBERS", payload);
       this.close();
     },
     deleteNumber(id) {
       this.$store.dispatch("numbers/DELETE_NUMBERS", id);
+    },
+    validateNumber(number) {
+      return number
+        .toString()
+        .replace(/\s/g, "")
+        .replace("+", "");
     }
   }
 };

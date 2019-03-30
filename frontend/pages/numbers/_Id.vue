@@ -68,13 +68,19 @@
             <v-layout justify-space-around fill-height row wrap>
               <v-flex sm7 xs12 offset-xs2>
                 <v-img
-                  :src="qrcode||'https://cdn1.iconfinder.com/data/icons/banking-36/128/qr__code_coding_scan_qrcode-512.png'"
+                  :src="qrcode"
                   aspect-ratio="1"
                   max-height="250"
                   max-width="250"
                   position="center"
                   class="grey lighten-2"
-                ></v-img>
+                >
+                  <template v-slot:placeholder v-if="number.is_running && !number.is_logged_in">
+                    <v-layout fill-height align-center justify-center ma-0>
+                      <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                    </v-layout>
+                  </template>
+                </v-img>
               </v-flex>
               <v-flex sm12 xs12>
                 <v-card-actions>
@@ -90,7 +96,7 @@
                     outline
                     block
                     color="blue"
-                    :disabled="number.is_logged_in"
+                    :disabled="!number.is_running||number.is_logged_in"
                     @click="scan"
                   >{{qrcode?'Reload':'Scan'}} QrCode</v-btn>
                 </v-card-actions>
@@ -100,18 +106,30 @@
         </v-flex>
 
         <!-- settings -->
-        <v-flex xs12>
+        <v-flex lg12 sm12 xs12>
           <v-card>
             <v-card-title>
               <v-icon left>settings</v-icon>
               <span class="title font-weight-light">Setting</span>
               <v-spacer></v-spacer>
-              <v-btn flat v-if="!update" @click="onUpdate" outline color="blue">
+              <!-- <v-btn flat v-if="!update" @click="onUpdate" outline color="blue">
                 <v-icon left>edit</v-icon>edit
               </v-btn>
               <v-btn flat v-if="update" @click="onSave" outline color="green">
                 <v-icon left>save</v-icon>save
+              </v-btn>-->
+              <v-btn small flat icon color="blue" v-if="!update" @click="onUpdate">
+                <v-icon>edit</v-icon>
               </v-btn>
+              <v-btn small flat icon color="green" v-if="update" @click="onSave">
+                <v-icon>save</v-icon>
+              </v-btn>
+              <v-btn small flat icon color="red" v-if="update" @click="update=false">
+                <v-icon>mdi-cancel</v-icon>
+              </v-btn>
+              <!-- <v-btn-toggle mandatory multiple> -->
+
+              <!-- </v-btn-toggle> -->
             </v-card-title>
             <v-card-text v-if="setting">
               <v-data-table :items="items" hide-headers hide-actions>
@@ -191,7 +209,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td class="text-xs-left subheading">Max Delay Send Per Message</td>
+                    <td class="text-xs-left subheading">Max Delay Send Per Message (second)</td>
                     <td class="text-xs-left">
                       <v-layout row wrap justify-end>
                         <v-flex sm4>
@@ -199,6 +217,20 @@
                             :readonly="!update"
                             type="number"
                             v-model="setting.max_delay"
+                          ></v-text-field>
+                        </v-flex>
+                      </v-layout>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-xs-left subheading">Delay after send few messages (digit)</td>
+                    <td class="text-xs-left">
+                      <v-layout row wrap justify-end>
+                        <v-flex sm4>
+                          <v-text-field
+                            :readonly="!update"
+                            type="number"
+                            v-model="setting.delay_after"
                           ></v-text-field>
                         </v-flex>
                       </v-layout>
@@ -286,6 +318,36 @@
             </v-card-text>
           </v-card>
         </v-flex>
+
+        <!-- advanced -->
+        <v-flex lg12 sm12 xs12>
+          <v-card>
+            <v-card-title>
+              <v-icon left>settings</v-icon>
+              <span class="title font-weight-light">Advanced Setting</span>
+              <v-spacer></v-spacer>
+              <v-btn icon>
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-card-title>
+            <v-card-text>
+              <v-data-table :items="items" hide-headers hide-actions>
+                <template v-slot:items="props">
+                  <tr>
+                    <td class="text-xs-left subheading">Auto Record Inbox</td>
+                    <td class="text-xs-left">
+                      <v-layout row wrap justify-end>
+                        <v-flex sm4>
+                          <v-text-field>hey</v-text-field>
+                        </v-flex>
+                      </v-layout>
+                    </td>
+                  </tr>
+                </template>
+              </v-data-table>
+            </v-card-text>
+          </v-card>
+        </v-flex>
       </v-layout>
     </v-container>
   </div>
@@ -296,7 +358,7 @@ import { mapGetters } from "vuex";
 
 export default {
   layout: "dashboard",
-  middleware: "auth",
+  middleware: ["auth","HasApiAccess"],
   data() {
     return {
       update: false,
@@ -337,8 +399,7 @@ export default {
     ...mapGetters({
       getNumber: "numbers/numbersById",
       getSetting: "numbers/setting",
-      getMessage: "messages/messageByNumber",
-      getqrcode: "numbers/getQrCode"
+      getMessage: "messages/messageByNumber"
     }),
     number() {
       return this.getNumber(this.getId);
@@ -362,24 +423,38 @@ export default {
       this.$store.dispatch("numbers/GET_NUMBERS");
     },
     scan() {
-      this.$store.dispatch("numbers/SCAN_QRCODE", this.getId);
-      this.qrcode = this.getqrcode(this.getId);
+      let id = this.getId;
+      this.$axios.setHeader("Api-Key", this.$store.state.auth.user.api_key);
+      this.$axios
+        .get(`numbers/${id}/login/`, { progress: true })
+        .then(response => {
+          if (response.status === 200) {
+            let qrcode = "";
+            if (response.data.status === "isLoggedIn") {
+              this.qrcode = "";
+              this.$store.commit("numbers/UPDATE_STATUS_LOGIN", {
+                numberId: this.getId,
+                status: true
+              });
+            } else {
+              this.qrcode = `data:image/png;base64,${response.data.qrcode}`;
+            }
+          }
+        });
     },
     onUpdate() {
       this.newsetting = Object.assign({}, this.getSetting(this.getId));
       this.update = true;
     },
     onSave() {
-      console.log("update");
       if (this.update) {
         this.$store.dispatch("numbers/UPDATE_NUMBER_SETTING", this.setting);
-        console.log(this.newsetting);
         this.update = false;
       }
     },
     onDelete() {
       this.$store.dispatch("numbers/DELETE_NUMBERS", this.getId);
-      this.$router.push('/numbers')
+      this.$router.push("/numbers");
     }
   }
 };

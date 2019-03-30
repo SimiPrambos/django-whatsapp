@@ -64,21 +64,6 @@ export const actions = {
             })
         })
 
-    },
-    SCAN_QRCODE({ rootState, commit }, id) {
-        this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
-        this.$axios.get(`numbers/${id}/login/`, { progress: true }).then(response => {
-            if (response.status === 200) {
-                let qrcode = ""
-                if (response.data.status === "isLoggedIn") {
-                    commit("REMOVE_QRCODE", { numberId: id })
-                    commit("UPDATE_STATUS_LOGIN", { numberId: id, status: true })
-                } else {
-                    qrcode = response.data.qrcode
-                }
-                commit("SET_QRCODE", { numberId: id, qrcode: qrcode })
-            }
-        })
     }
 }
 
@@ -93,7 +78,6 @@ export const mutations = {
         let number = state.list.find(number => number.id === payload.number)
         let settings = { setting: payload }
         Object.assign(number, settings)
-        console.log("suwiiii")
     },
     ADD_NUMBERS(state, numbers) {
         state.list.push(numbers)
@@ -108,16 +92,6 @@ export const mutations = {
     UPDATE_STATUS_LOGIN(state, payload) {
         state.list.find(number => number.id === payload.numberId).is_logged_in = payload.status
     },
-    SET_QRCODE(state, payload) {
-        let number = state.list.find(number => number.id === payload.numberId)
-        let source = { qrcode: payload.qrcode.length > 0 ? "data:image/png;base64," + payload.qrcode : payload.qrcode }
-        Object.assign(number, source)
-    },
-    REMOVE_QRCODE(state, payload) {
-        let number = state.list.find(number => number.id === payload.numberId)
-        let source = { qrcode: "" }
-        Object.assign(number, source)
-    }
 }
 
 export const getters = {
@@ -132,9 +106,6 @@ export const getters = {
     },
     numbersIsLoggedIn(state) {
         return state.list.filter(number => number.is_logged_in === true)
-    },
-    getQrCode(state) {
-        return (id) => state.list.find(number => number.id === id).qrcode || ""
     },
     setting(state) {
         return (id) => state.list.find(number => number.id === id).setting || {}

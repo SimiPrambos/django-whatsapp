@@ -2,7 +2,7 @@
   <div id="newContact">
     <v-container grid-list-xl fluid>
       <v-layout row wrap>
-        <v-flex lg8 sm8 xs12>
+        <v-flex lg10 sm10 xs12>
           <v-card flat>
             <!-- header -->
             <v-toolbar card dense color="transparent">
@@ -11,6 +11,8 @@
                 <v-icon>delete</v-icon>
                 delete ({{selected.length===(contacts.length)?"ALL":selected.length}})
               </v-btn>
+              <!-- add button -->
+              <new-contact></new-contact>
               <!-- import button -->
               <form-dialog
                 title="Import Contact"
@@ -41,11 +43,13 @@
                   </v-flex>
                   <v-dialog v-model="loadfile" hide-overlay persistent width="300">
                     <v-card color="primary" dark>
-                      <v-card-text>Validating File
+                      <v-card-text>
+                        Validating File
                         <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
                       </v-card-text>
                     </v-card>
                   </v-dialog>
+                  <!-- info -->
                 </template>
               </form-dialog>
               <v-spacer></v-spacer>
@@ -56,9 +60,13 @@
                 single-line
                 hide-details
               ></v-text-field>
+              <v-spacer></v-spacer>
+              <v-btn flat large icon @click="refresh">
+                <v-icon>refresh</v-icon>
+              </v-btn>
             </v-toolbar>
             <!-- body -->
-            <v-card-text>
+            <v-card-text class="pa-0">
               <v-data-table
                 v-model="selected"
                 :headers="headers"
@@ -69,19 +77,44 @@
                 class="elevation-1"
               >
                 <template v-slot:items="props">
-                  <tr @click="props.expanded = !props.expanded">
+                  <tr>
                     <td>
                       <v-checkbox v-model="props.selected" primary hide-details></v-checkbox>
                     </td>
                     <td class="text-xs-left">{{ props.item.name }}</td>
                     <td class="text-xs-left">{{ props.item.number }}</td>
+                    <td class="text-xs-left">{{ props.item.country.toUpperCase() }}</td>
+                    <td class="text-xs-left">{{ props.item.is_phone_number?'Valid':'Invalid' }}</td>
+                    <!-- <td>
+                      <v-btn-toggle>
+                        <v-btn
+                          small
+                          outline
+                          fab
+                          color="black"
+                          @click="props.expanded = !props.expanded"
+                        >
+                          <v-icon>mdi-information-outline</v-icon>
+                        </v-btn>
+                      </v-btn-toggle>
+                    </td> -->
                   </tr>
                 </template>
-                <template v-slot:expand="props">
+
+                <!-- <template v-slot:expand="props">
                   <v-card flat>
-                    <v-card-text>Peek-a-boo!</v-card-text>
+                    <v-card-text class="text-xs-center">
+                      <v-data-table :items="[1]" hide-headers hide-actions>
+                        <template v-slot:items="props">
+                          <tr>
+                            <td class="text-xs-left subheading">Name</td>
+                            <td class="text-xs-left subheading">{{props.item.name}}</td>
+                          </tr>
+                        </template>
+                      </v-data-table>
+                    </v-card-text>
                   </v-card>
-                </template>
+                </template> -->
                 <v-alert
                   slot="no-results"
                   :value="true"
@@ -101,12 +134,14 @@
 import { mapGetters } from "vuex";
 import FormDialog from "@/components/contacts/FormDialog";
 import UploadButton from "vuetify-upload-button";
+import NewContact from "@/components/contacts/NewContact";
 export default {
   layout: "dashboard",
   middleware: "auth",
   components: {
     FormDialog,
-    UploadButton
+    UploadButton,
+    NewContact
   },
   data() {
     return {
@@ -114,7 +149,10 @@ export default {
       search: "",
       headers: [
         { text: "NAME", value: "name", align: "left" },
-        { text: "NUMBER", value: "number", align: "left" }
+        { text: "NUMBER", value: "number", align: "left" },
+        { text: "COUNTRY", value: "country", align: "left" },
+        { text: "STATUS", value: "is_phone_number", align: "left" },
+        // { text: "DETAIL", value: "detail", align: "left" }
       ],
       filename: "",
       file: null,
@@ -122,7 +160,9 @@ export default {
     };
   },
   mounted() {
-    this.$store.dispatch("contacts/GET_CONTACTS");
+    if (!this.contacts) {
+      this.$store.dispatch("contacts/GET_CONTACTS");
+    }
   },
   computed: {
     ...mapGetters({
@@ -144,6 +184,9 @@ export default {
     },
     onDelete() {
       this.$store.dispatch("contacts/DELETE_CONTACTS", this.selected);
+    },
+    refresh() {
+      this.$store.dispatch("contacts/GET_CONTACTS");
     }
   }
 };

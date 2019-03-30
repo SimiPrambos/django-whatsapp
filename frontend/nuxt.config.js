@@ -47,6 +47,7 @@ module.exports = {
     '@/plugins/vuetify',
     '@/plugins/vee-validate',
     '@/plugins/vue-tel-input',
+    '@/plugins/axios'
   ],
 
   /*

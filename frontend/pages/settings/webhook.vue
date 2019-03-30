@@ -72,7 +72,6 @@ export default {
   computed: {
     ...mapGetters(
       { setting: "settings/setting" },
-      // { webhooks: "settings/webhooks" }
     )
   },
   methods: {

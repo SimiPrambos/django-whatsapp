@@ -7,12 +7,6 @@
     <v-breadcrumbs divider="-" :items="breadcrumbs">
 
     </v-breadcrumbs>
-    <v-spacer></v-spacer>
-    <div class="page-header-right">
-      <v-btn icon>
-        <v-icon class="text--secondary">refresh</v-icon>
-      </v-btn>
-    </div>
   </v-layout>  
 </template>
 

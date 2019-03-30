@@ -31,11 +31,25 @@
 
           <v-window-item :value="2">
             <v-card-text>
-              <v-checkbox
-                v-model="multiple"
-                label="Multiple contact?"
-                :disabled="messages.from.length > 1"
-              ></v-checkbox>
+              <v-layout row wrap>
+                <v-flex>
+                  <v-checkbox
+                    v-model="multiple"
+                    label="Multiple contact?"
+                    :disabled="messages.from.length > 1"
+                  ></v-checkbox>
+                </v-flex>
+                <v-flex>
+                  <v-checkbox v-model="includeFriend">
+                    <span slot="label">
+                      Include friend list? (used for blocking anticipation). click
+                      <a
+                        href="/messages/friends"
+                      >here</a> to manage your friend number and message
+                    </span>
+                  </v-checkbox>
+                </v-flex>
+              </v-layout>
               <div v-if="!multiple">
                 <vue-tel-input
                   v-model="messages.to"
@@ -67,6 +81,14 @@
                       :items="professions"
                       label="Professions"
                       @change="setFilter(myFilter.profession, 'prof')"
+                    ></v-autocomplete>
+                  </v-flex>
+                  <v-flex sm6>
+                    <v-autocomplete
+                      v-model="myFilter.profession"
+                      :items="additionals"
+                      label="Additionals"
+                      @change="setFilter(myFilter.profession, 'adt')"
                     ></v-autocomplete>
                   </v-flex>
                 </v-layout>
@@ -115,7 +137,7 @@
                     outline
                     color="blue"
                     @click="messages.content.push({text:'Hello, how are you?', media:null})"
-                    :disabled="!multiple"
+                    :disabled="!multiple || filteredContact.length === messages.content.length"
                   >add more message</v-btn>
                 </v-flex>
               </v-layout>
@@ -159,7 +181,7 @@
 import { mapGetters } from "vuex";
 export default {
   layout: "dashboard",
-  middleware: "auth",
+  middleware: ["auth","HasApiAccess"],
   data: () => ({
     step: 1,
     multiple: false,
@@ -175,12 +197,22 @@ export default {
       from: [],
       to: null,
       content: [{ text: "Hello, are you fine?", media: null }]
-    }
+    },
+    includeFriend: false
   }),
   mounted() {
-    this.$store.dispatch("numbers/GET_NUMBERS");
-    this.$store.dispatch("contacts/GET_CONTACTS");
-    this.$store.dispatch("media/GET_MEDIA");
+    if (!this.numbers) {
+      this.$store.dispatch("numbers/GET_NUMBERS");
+    }
+    if (!this.contacts) {
+      this.$store.dispatch("contacts/GET_CONTACTS");
+    }
+    if (!this.media) {
+      this.$store.dispatch("media/GET_MEDIA");
+    }
+    if (!this.friendMessages) {
+      this.$store.dispatch("messages/GET_FRIEND_MESSAGES");
+    }
     this.filteredContact = this.contacts;
   },
   computed: {
@@ -189,7 +221,10 @@ export default {
       contacts: "contacts/contacts",
       locations: "contacts/locations",
       professions: "contacts/professions",
-      media: "media/media"
+      additionals: "contacts/additionals",
+      media: "media/media",
+      friendContacts: "contacts/friends",
+      friendMessages: "messages/friendMessages"
     }),
     currentTitle() {
       switch (this.step) {
@@ -239,12 +274,25 @@ export default {
       this.messages.content = [{ text: "Hello, are you fine?", media: null }];
       this.step = 1;
     },
+    getRandomFriendMessages() {
+      let messages = [];
+      if (this.friendContacts.length > 0 && this.friendMessages.length > 0) {
+        this.friendContacts.map(contact => {
+          messages.push({
+            message_number: contact.number,
+            message_content: this.friendMessages[
+              Math.floor(Math.random() * Math.floor(this.friendMessages.length))
+            ].message
+          });
+        });
+      }
+      return messages;
+    },
     send() {
       if (this.multiple) {
         let from = this.messages.from;
         let to = this.filteredContact;
         let contents = this.messages.content;
-
         let withMedia = [];
         let nonMedia = [];
 
@@ -262,7 +310,15 @@ export default {
             numberId: number,
             messages: []
           };
+          let fStep = 0;
           to.map((contact, cIndex) => {
+            let friendMsg = this.getRandomFriendMessages();
+            if (this.includeFriend && friendMsg.length > 0) {
+              if (cIndex % parseInt(to.length / friendMsg.length) === 0) {
+                nMedia.messages.push(friendMsg[fStep]);
+                fStep++;
+              }
+            }
             if (cIndex >= cStep && cIndex < div * nStep) {
               let content =
                 contents[
@@ -333,6 +389,7 @@ export default {
         }
       }
       this.clear();
+      this.$router.push("/messages/outbox");
     },
     setFilter(value, type) {
       let index = null;
@@ -345,6 +402,9 @@ export default {
           break;
         case "prof":
           index = 3;
+          break;
+        case "adt":
+          index = 4;
           break;
         default:
           break;
@@ -363,6 +423,9 @@ export default {
           }
           if (contact.profession && contact.profession.includes(filterby)) {
             return contact.profession.includes(filterby);
+          }
+          if (contact.additional && contact.additional.includes(filterby)) {
+            return contact.additional.includes(filterby);
           }
         });
       });
