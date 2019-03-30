@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from messages_app.models import WhatsappChatMessages, WhatsappMediaMessages
+from messages_app.models import WhatsappChatMessages, WhatsappMediaMessages, FriendMessages
 from .media import UsersMediaSerializer
 
 class WhatsappChatSerializer(serializers.ModelSerializer):
@@ -18,3 +18,9 @@ class WhatsappMediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = WhatsappMediaMessages
         fields = '__all__'
+
+
+class FriendMessagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FriendMessages
+        exclude = ('user',)

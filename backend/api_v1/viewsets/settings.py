@@ -29,27 +29,3 @@ class SettingViewset(generics.RetrieveUpdateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
-
-
-# class SettingViewset(viewsets.ModelViewSet):
-#     queryset = Setting.objects.all()
-#     serializer_class = SettingSerializer
-#     authentication_classes = (TokenAuthentication, )
-#     permission_classes = (IsAuthenticated, )
-
-#     def list(self, request):
-#         queryset = self.get_queryset().get(user_id=request.user.id)
-#         serializer = SettingSerializer(queryset, many=False)
-#         return Response(serializer.data)
-
-#     # @action(detail=False, methods=['GET'])
-#     # def update(self, request, pk=None):
-#     #     print(request.data)
-#     #     return Response({"oke":"sipp"}, status=201)
-
-#     @action(detail=False, methods=['GET'])
-#     def webhook(self, request):
-#         queryset = Webhook.objects.all()
-#         queryset = queryset.filter(setting__user_id=request.user.id)
-#         serializer = WebhookSerializer(queryset, many=True)
-#         return Response(serializer.data)

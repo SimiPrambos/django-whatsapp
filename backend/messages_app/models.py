@@ -1,5 +1,6 @@
 from enum import Enum
 from django.db import models
+from django.contrib.auth.models import User
 
 def get_chatid(number):
     return number+'@c.us' if not '@c.us' in number else number
@@ -60,3 +61,14 @@ class WhatsappMediaMessages(models.Model):
 
     def __str__(self):
         return self.message_number
+
+
+class FriendMessages(models.Model):
+    class Meta:
+        db_table = 'friend_messages'
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+
+    def __str__(self):
+        return self.message

@@ -8,13 +8,15 @@ from .config import (
     is_time_to_send,
     is_allowed_record,
     is_allowed_read,
-    get_max_delay
+    get_max_delay,
+    get_delay_after
 )
 from messages_app.models import WhatsappChatMessages, WhatsappMediaMessages
 
 drivers = dict()
 timers = dict()
 semaphores = dict()
+messages = dict()
 
 
 def init_driver(id):
@@ -74,7 +76,6 @@ def background_task(id):
         release_semaphore(id)
         if drivers[id].is_logged_in():
             if is_time_to_send(id):
-                print("background task started")
                 outbound_message_background(id)
 
             if is_allowed_record(id):
@@ -93,7 +94,6 @@ def incoming_message_background(id):
         HandleReceivedMessage(id, messages).start()
 
 def outbound_message_background(id):
-    print("Outbound message task running...")
     chats = WhatsappChatMessages.objects.filter(
         number_id=id, message_type='OUT',
         message_status='P', send_retry__lt=3,
@@ -106,24 +106,33 @@ def outbound_message_background(id):
     )
     max_delay = get_max_delay(id)
     max_delay = 2 if max_delay <= 2 else max_delay
+    delay_after = get_delay_after(id)
     
     if chats:
-        print("Got Pending messgage : ", len(chats))
         for index, chat in enumerate(chats, start=1):
-            print("Switching to process ", index)
             chat.on_progress = True
             chat.save()
-        for index, chat in enumerate(chats, start=1):
-            print("processing message with id :", index)
+        for chat in chats:
+            messages[id] += 1
+            if messages[id] > 0 and messages[id] % delay_after == 0:
+                time.sleep(120)
             time.sleep(random.randint(max_delay//2, max_delay))
             send = HandleSendMessage(id=id, instance=chat)
             send.start()
             send.join()
 
     if medias:
+        for index, media in enumerate(medias, start=1):
+            media.on_progress = True
+            media.save()
         for media in medias:
-            time.sleep(random.randint(1, max_delay))
-            HandleSendMessage(id=id, instance=media, media=True).start()
+            messages[id] += 1
+            if messages[id] > 0 and messages[id] % delay_after == 0:
+                time.sleep(120)
+            time.sleep(random.randint(max_delay//2, max_delay))
+            send = HandleSendMessage(id=id, instance=media, media=True)
+            send.start()
+            send.join()
         
 def delete_client(id, remove_cache):
     if id in drivers:
@@ -163,6 +172,8 @@ def get_instance(id):
 
 def start_instance(id):
     instance = init_client(id)
+    instance.wait_for_login(timeout=5)
+    messages[id] = 0
     init_timer(id)
     return instance
 

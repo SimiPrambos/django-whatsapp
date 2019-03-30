@@ -35,6 +35,7 @@ class NumberSettings(models.Model):
     record_inbox = models.BooleanField(default=True)
     auto_read = models.BooleanField(default=True)
     max_delay = models.IntegerField(default=20)
+    delay_after = models.IntegerField(default=20)
     auto_reboot = models.TimeField(default=time(00,00))
     send_schedule_from = models.TimeField(default=time(00,30))
     send_schedule_to = models.TimeField(default=time(23,30))

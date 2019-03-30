@@ -1,8 +1,10 @@
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from rest_framework.response import Response
-from ..serializers.messages import WhatsappChatSerializer, WhatsappMediaSerializer
-from messages_app.models import WhatsappChatMessages, WhatsappMediaMessages
+from ..serializers.messages import WhatsappChatSerializer, WhatsappMediaSerializer, FriendMessagesSerializer
+from messages_app.models import WhatsappChatMessages, WhatsappMediaMessages, FriendMessages
 from users_auth.permissions import HasWhatsappLoggedIn, HasAPIAccess
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 class WhatsappChatAllViewset(generics.ListAPIView):
     queryset = WhatsappChatMessages.objects.all()
@@ -85,3 +87,19 @@ class WhastappMediaDetailViewset(generics.RetrieveDestroyAPIView):
         queryset = super(WhastappMediaDetailViewset, self).get_queryset()
         queryset = queryset.filter(number_id=self.kwargs['pk'], number__user__api_key__api_key=self.request.apikey)
         return queryset
+
+
+class FriendMessagesViewset(viewsets.ModelViewSet):
+    queryset = FriendMessages.objects.all()
+    serializer_class = FriendMessagesSerializer
+    lookup_field = 'id'
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (IsAuthenticated, )
+
+    def get_queryset(self):
+        queryset = super(FriendMessagesViewset, self).get_queryset()
+        queryset = queryset.filter(user_id=self.request.user.id)
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(user_id=self.request.user.id)

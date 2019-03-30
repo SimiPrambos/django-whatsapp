@@ -159,8 +159,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # selenium chrome configuration
-CHROME_IS_HEADLESS = True
-CHROME_DISABLE_SANDBOX = True
+CHROME_IS_HEADLESS = False
+CHROME_DISABLE_SANDBOX = False
 CHROME_CACHE_PATH = BASE_DIR + '/chrome_cache/'
 CHROME_DISABLE_GPU = True
 CHROME_WINDOW_SIZE = "910,512"

@@ -13,17 +13,20 @@ from .viewsets.messages import (
     WhatsappChatViewset,
     WhatsappChatDetailViewset,
     WhatsappMediaViewset,
-    WhastappMediaDetailViewset
+    WhastappMediaDetailViewset,
+    FriendMessagesViewset
 )
 from .viewsets.contacts import ContactsViewset
 from .viewsets.media import UsersMediaViewset
 from .viewsets.settings import SettingViewset
+from .viewsets.users import UsersViewset
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register('media', UsersMediaViewset, base_name='api_media')
 router.register('contacts', ContactsViewset, base_name='api_contacts')
-# router.register('setting', SettingViewset, base_name='api_setting')
+router.register('users', UsersViewset, base_name='api_users')
+router.register('friend-messages', FriendMessagesViewset, base_name='api_friend_message')
 
 urlpatterns = [
     path('', include(router.urls)),

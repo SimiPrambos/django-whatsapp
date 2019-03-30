@@ -28,7 +28,7 @@ class ContactsViewset(viewsets.ModelViewSet):
     def create(self, request):
         serializer = self.get_serializer(data=request.data, many=False)
         serializer.is_valid(raise_exception=True)
-        serializer.save(user_id=self.user.id)
+        serializer.save(user_id=request.user.id)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
 

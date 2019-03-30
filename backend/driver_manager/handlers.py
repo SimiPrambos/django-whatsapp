@@ -30,7 +30,6 @@ class HandleReceivedMessage(threading.Thread):
     def __init__(self, id, messages_obj):
         self.id = id
         self.messages = messages_obj
-        # self.deamon = True
         threading.Thread.__init__(self)
 
     def run(self):
@@ -62,7 +61,6 @@ class HandleSendMessage(threading.Thread):
         self.instance = instance
         self.media = media
         self.status = None
-        # self.deamon = True
         print("thread send to ", instance.get_chatid)
         threading.Thread.__init__(self)
 
@@ -88,7 +86,7 @@ class HandleSendMessage(threading.Thread):
 
         self.instance.message_status = self.status
         self.instance.send_retry += 1
-        # self.instance.on_progress = False
+        self.instance.on_progress = False
         self.instance.save()
 
     def send_text_message(self, id, to, content, instance):
@@ -115,7 +113,6 @@ class HandleValidateNumber(threading.Thread):
     def __init__(self, id, instances):
         self.id = id
         self.instances = instances
-        # self.deamon = True
         threading.Thread.__init__(self)
 
     def run(self):

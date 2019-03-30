@@ -26,3 +26,7 @@ def is_allowed_read(id):
 def get_max_delay(id):
     number = get_number(id)
     return number.max_delay
+
+def get_delay_after(id):
+    number = get_number(id)
+    return number.delay_after

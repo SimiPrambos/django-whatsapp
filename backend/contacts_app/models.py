@@ -23,6 +23,7 @@ class Contacts(models.Model):
     is_phone_number = models.BooleanField(default=False)
     
     # opsional
+    is_friend = models.BooleanField(default=False)
     gender = models.CharField(
         max_length=1, 
         choices=[(tag.name, tag.value) for tag in GenderChoices],
@@ -31,6 +32,7 @@ class Contacts(models.Model):
     location = models.CharField(max_length=50, blank=True, null=True)
     profession = models.CharField(max_length=50, blank=True, null=True)
     birthday = models.DateField(default=timezone.now().date(), blank=True, null=True)
+    additional = models.CharField(max_length=50, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
