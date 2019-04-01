@@ -29,7 +29,7 @@
         </p>
       </v-flex>
       <v-flex lg6 sm6 xs6>
-        <v-select v-model="contact.gender" label="gender"></v-select>
+        <v-select v-model="contact.gender" :items="items" label="gender"></v-select>
       </v-flex>
       <v-flex lg6 sm6 xs6>
         <v-menu
@@ -98,7 +98,12 @@ export default {
     return {
       contact: defaultContact,
       menu: false,
-      date: new Date().toISOString().substr(0, 10)
+      date: new Date().toISOString().substr(0, 10),
+      items: [
+        { text: "Man", value: "M" },
+        { text: "Woman", value: "W" },
+        { text: "Other", value: "O" }
+      ]
     };
   },
   methods: {
