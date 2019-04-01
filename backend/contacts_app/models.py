@@ -29,6 +29,7 @@ class Contacts(models.Model):
         choices=[(tag.name, tag.value) for tag in GenderChoices],
         default='O', blank=True, null=True
     )
+    greeting = models.CharField(max_length=50, blank=True, null=True)
     location = models.CharField(max_length=50, blank=True, null=True)
     profession = models.CharField(max_length=50, blank=True, null=True)
     birthday = models.DateField(default=timezone.now().date(), blank=True, null=True)
