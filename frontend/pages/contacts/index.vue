@@ -187,7 +187,7 @@ export default {
           {field: "name", type: "required", example: "John doe", detail: "name for your contact"},
           {field: "number", type: "required", example: "6285xxx or 085xxx", detail: "number for your contact"},
           {field: "country", type: "required", example: "ID, US, UK, etc", detail: "this field used to validate number. so, make sure country code is correct for your number"},
-          {field: "gander", type: "optional", example: "M, W, O", detail: "M = Man, W = Woman, O = Other"},
+          {field: "gender", type: "optional", example: "M, W, O", detail: "M = Man, W = Woman, O = Other"},
           {field: "birthday", type: "optional", example: "2019-09-19", detail: "name for your contact"},
           {field: "profession", type: "optional", example: "manager", detail: "profession for your contact"},
           {field: "location", type: "optional", example: "jakarta", detail: "location for your contact"},
