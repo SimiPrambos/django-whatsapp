@@ -5,7 +5,11 @@
         <v-flex>
           <v-card>
             <v-toolbar card dense color="transparent">
-              <v-toolbar-title>
+              <v-btn v-if="selected.length > 0" flat outline color="red" @click="onDelete">
+                <v-icon>delete</v-icon>
+                delete ({{selected.length===(items.length)?"ALL":selected.length}})
+              </v-btn>
+              <v-toolbar-title v-else>
                 <h4>Message List</h4>
               </v-toolbar-title>
               <v-spacer></v-spacer>
@@ -24,21 +28,27 @@
             <v-card-text class="pa-0">
               <template>
                 <v-data-table
+                  v-model="selected"
                   :headers="headers"
-                  :items="items(messageType)"
+                  :items="items"
                   :search="search"
                   item-key="id"
+                  select-all
                   :pagination.sync="pagination"
                   hide-actions
                   class="elevation-1 table-striped"
                 >
-                  <template slot="items" slot-scope="props">
-                    <tr
-                      @click="detailMessage(props.item.message_number,props.item.message_content)"
-                    >
-                      <td>{{ props.index+1 }}</td>
+                  <template v-slot:items="props">
+                    <tr>
+                      <td>
+                        <v-checkbox v-model="props.selected" primary hide-details></v-checkbox>
+                      </td>
+                      <!-- <td>{{ props.index+1 }}</td> -->
                       <td class="text-xs-left">{{ props.item.message_number }}</td>
-                      <td class="text-xs-left">{{ props.item.message_content.substring(0,10) }}...</td>
+                      <td
+                        class="text-xs-left"
+                        @click="detailMessage(props.item.number,props.item.message_number,props.item.message_content)"
+                      >{{ props.item.message_content.substring(0,10) }}...</td>
                       <td class="text-xs-left">
                         <v-chip
                           label
@@ -77,10 +87,30 @@
           <v-card-text>
             <v-layout row wrap>
               <v-flex lg12 sm12 xs12>
-                <v-text-field name="number" :value="selected.number" box readonly label="number"></v-text-field>
+                <v-text-field
+                  name="number"
+                  :value="selectedMessage.message_number"
+                  box
+                  readonly
+                  label="Number"
+                ></v-text-field>
               </v-flex>
               <v-flex lg12 sm12 xs12>
-                <v-textarea name="message" :value="selected.message" box readonly label="message"></v-textarea>
+                <v-textarea
+                  name="message"
+                  :value="selectedMessage.message_content"
+                  box
+                  readonly
+                  label="Message"
+                ></v-textarea>
+              </v-flex>
+              <v-flex lg10 sm10 xs10 v-if="messageType === 'IN'">
+                <v-text-field name="replay" v-model="textreplay" label="Replay"></v-text-field>
+              </v-flex>
+              <v-flex lg2 sm2 xs2 v-if="messageType === 'IN'">
+                <v-btn fab color="teal" dark icon @click="replay">
+                  <v-icon>send</v-icon>
+                </v-btn>
               </v-flex>
             </v-layout>
           </v-card-text>
@@ -109,23 +139,25 @@ export default {
         Failed: "red"
       },
       dialog: false,
-      selected: {
-        message: "",
-        number: ""
+      selectedMessage: {
+        number: "",
+        message_number: "",
+        message_content: ""
       },
-      pagination: {}
+      pagination: {},
+      textreplay: "",
+      selected: []
     };
   },
   mounted() {
-    if (!this.items(this.messageType)) {
+    if (!this.items) {
       this.$store.dispatch("messages/GET_MESSAGES");
     }
   },
   computed: {
-    ...mapGetters({ items: "messages/messagesByType" }),
-    messageType() {
-      let type = this.$route.params.messageType.toLowerCase();
-      return type === "inbox" ? "IN" : type === "outbox" ? "OUT" : "ALL";
+    ...mapGetters({ messages: "messages/messagesByType" }),
+    items() {
+      return this.messages(this.messageType());
     },
     headers() {
       return [
@@ -175,6 +207,10 @@ export default {
     }
   },
   methods: {
+    messageType() {
+      let type = this.$route.params.messageType.toLowerCase();
+      return type === "inbox" ? "IN" : type === "outbox" ? "OUT" : "ALL";
+    },
     getColorByStatus(status) {
       return this.colors[status];
     },
@@ -197,13 +233,35 @@ export default {
           })
         : "";
     },
-    detailMessage(number, message) {
-      this.selected.number = number;
-      this.selected.message = message;
+    detailMessage(number, message_number, message_content) {
+      this.selectedMessage.number = number;
+      this.selectedMessage.message_number = message_number;
+      this.selectedMessage.message_content = message_content;
       this.dialog = true;
     },
     refresh() {
       this.$store.dispatch("messages/GET_MESSAGES");
+    },
+    replay() {
+      let payload = {
+        numberId: this.selectedMessage.number,
+        messages: [
+          {
+            message_number: this.selectedMessage.message_number,
+            message_content: this.textreplay
+          }
+        ]
+      };
+      this.$store.dispatch("messages/POST_TEXT_MESSAGE", payload);
+      this.dialog = false;
+    },
+    onDelete() {
+      this.selected.map(message => {
+        this.$store.dispatch("messages/DELETE_MESSAGES", {
+          id: message.id,
+          number: message.number
+        });
+      });
     }
   }
 };
