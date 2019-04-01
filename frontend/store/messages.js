@@ -67,6 +67,15 @@ export const actions = {
                     commit("REMOVE_FRIEND_MESSAGE", id)
                 }
             })
+    },
+    DELETE_MESSAGES({rootState, commit}, payload){
+        this.$axios.setHeader("Api-Key", rootState.auth.user.api_key)
+        this.$axios.delete(`numbers/${payload.number}/chats/${payload.id}/`, { progress: true })
+            .then(response => {
+                if (response.status === 204) {
+                    commit("REMOVE_MESSAGES", payload.id)
+                }
+            })
     }
 }
 
@@ -79,6 +88,10 @@ export const mutations = {
     },
     ADD_MESSAGES(state, payload) {
         state.list.push(payload)
+    },
+    REMOVE_MESSAGES(state, id){
+        let index = state.list.findIndex(message => message.id === id)
+        state.list.splice(index, 1)
     },
     SET_FRIEND_MESSAGES(state, payload) {
         state.friends = payload
