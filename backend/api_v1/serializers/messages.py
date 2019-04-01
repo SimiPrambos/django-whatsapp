@@ -19,7 +19,7 @@ class WhatsappChatSerializer(serializers.ModelSerializer):
     class Meta:
         model = WhatsappChatMessages
         fields = (
-            'number', 'message_type', 'message_number',
+            'id', 'number', 'message_type', 'message_number',
             'message_content', 'message_status',
             'message_timestamp', 'template'
         )
@@ -35,11 +35,12 @@ class WhatsappChatSerializer(serializers.ModelSerializer):
 class WhatsappMediaSerializer(serializers.ModelSerializer):
     number = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
     message_type = serializers.ReadOnlyField(default='OUT')
+    template = JSONSerializerField(required=False)
 
     class Meta:
         model = WhatsappMediaMessages
         fields = fields = (
-            'number', 'message_type', 'message_number',
+            'id', 'number', 'message_type', 'message_number',
             'message_media', 'message_content', 'message_status',
             'message_timestamp', 'template'
         )
