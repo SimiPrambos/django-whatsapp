@@ -431,7 +431,7 @@ export default {
           ]
         };
         if (this.messages.content[0].media) {
-          payload.messages["message_media"] = this.messages.content[0].media;
+          payload.messages[0]["message_media"] = this.messages.content[0].media;
           this.$store.dispatch("messages/POST_MEDIA_MESSAGE", payload);
         } else {
           this.$store.dispatch("messages/POST_TEXT_MESSAGE", payload);
