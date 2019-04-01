@@ -22,6 +22,7 @@
     "papaparse": "^4.6.3",
     "quill": "^1.3.6",
     "roboto-fontface": "*",
+    "v-playback": "^1.0.1",
     "vee-validate": "^2.1.7",
     "vue-fullcalendar": "^1.0.9",
     "vue-perfect-scrollbar": "^0.1.0",
