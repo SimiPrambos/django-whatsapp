@@ -79,11 +79,7 @@
                       v-if="isImage(item.filepath)"
                     >
                     <v-icon class="mx-auto" size="150" v-else-if="isAudio(item.filepath)">music_note</v-icon>
-                    <v-icon
-                      class="mx-auto"
-                      size="150"
-                      v-else-if="isVideo(item.filepath)"
-                    >video_library</v-icon>
+                    <v-playback v-else-if="isVideo(item.filepath)" :url="item.filepath" ></v-playback>
                     <v-icon class="mx-auto" size="135" v-else>insert_drive_file</v-icon>
                     <v-divider></v-divider>
                     <v-card-title>{{item.filename}}</v-card-title>
@@ -102,6 +98,7 @@
                   <v-icon v-if="isImage(item.filepath)">image</v-icon>
                   <v-icon v-else-if="isAudio(item.filepath)">music_note</v-icon>
                   <v-icon v-else-if="isVideo(item.filepath)">video_library</v-icon>
+                  <v-icon v-else>insert_drive_file</v-icon>
                 </v-list-tile-avatar>
                 <v-list-tile-content>
                   <div class="container pl-0">
