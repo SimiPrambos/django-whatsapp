@@ -2,6 +2,20 @@
   <div id="pageFriends">
     <v-container grid-list-xl fluid>
       <v-layout row wrap>
+        <v-flex lg12 sm12 xs12>
+          <v-card>
+            <v-card-text>
+              <p>
+                In here you can set friends number and message, make sure the contact was saved on your phone.
+                <br>this is used for blocking anticipation,
+                every time you create message and activate include friend list feature, we will generate random message from
+                <b>Friend Messages</b> to your
+                <b>Friend Contacts</b>
+                and send it with a certain period of time, that how it works..
+              </p>
+            </v-card-text>
+          </v-card>
+        </v-flex>
         <v-flex lg5 sm5 xs12>
           <v-card>
             <v-toolbar card dense color="transparent">

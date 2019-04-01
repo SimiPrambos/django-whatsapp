@@ -19,11 +19,12 @@
                 label="import"
                 color="blue"
                 icon="mdi-import"
+                maxWidth="700px"
                 :onSave="onSave"
                 ref="importcontact"
               >
                 <template v-slot:form>
-                  <v-flex xs3 sm3 md3 align-self-start>
+                  <v-flex xs3 sm3 md3 align-self-start color="red">
                     <upload-button
                       accept=".csv, text/csv"
                       large
@@ -50,6 +51,18 @@
                     </v-card>
                   </v-dialog>
                   <!-- info -->
+                  <v-flex>
+                    <v-data-table disable-initial-sort :headers="helpImport.headers" :items="helpImport.items" hide-actions dark>
+                      <template v-slot:items="props">
+                        <tr>
+                          <td class="text-xs-left caption">{{props.item.field}}</td>
+                          <td class="text-xs-left caption">{{props.item.type}}</td>
+                          <td class="text-xs-left caption">{{props.item.example}}</td>
+                          <td class="text-xs-left caption">{{props.item.detail}}</td>
+                        </tr>
+                      </template>
+                    </v-data-table>
+                  </v-flex>
                 </template>
               </form-dialog>
               <v-spacer></v-spacer>
@@ -74,6 +87,8 @@
                 :search="search"
                 item-key="id"
                 select-all
+                :pagination.sync="pagination"
+                hide-actions
                 class="elevation-1"
               >
                 <template v-slot:items="props">
@@ -97,7 +112,7 @@
                           <v-icon>mdi-information-outline</v-icon>
                         </v-btn>
                       </v-btn-toggle>
-                    </td> -->
+                    </td>-->
                   </tr>
                 </template>
 
@@ -114,7 +129,7 @@
                       </v-data-table>
                     </v-card-text>
                   </v-card>
-                </template> -->
+                </template>-->
                 <v-alert
                   slot="no-results"
                   :value="true"
@@ -122,6 +137,9 @@
                   icon="warning"
                 >No results for "{{ search }}".</v-alert>
               </v-data-table>
+              <div class="text-xs-center pt-2">
+                <v-pagination v-model="pagination.page" :length="pages"></v-pagination>
+              </div>
             </v-card-text>
           </v-card>
         </v-flex>
@@ -151,12 +169,32 @@ export default {
         { text: "NAME", value: "name", align: "left" },
         { text: "NUMBER", value: "number", align: "left" },
         { text: "COUNTRY", value: "country", align: "left" },
-        { text: "STATUS", value: "is_phone_number", align: "left" },
+        { text: "STATUS", value: "is_phone_number", align: "left" }
         // { text: "DETAIL", value: "detail", align: "left" }
       ],
       filename: "",
       file: null,
-      loadfile: false
+      loadfile: false,
+      pagination: {},
+      helpImport: {
+        headers: [
+          {text: "Column", value: "field"},
+          {text: "Type", value: "type"},
+          {text: "Example", value: "example"},
+          {text: "Detail", value: "detail"}
+        ],
+        items: [
+          {field: "name", type: "required", example: "John doe", detail: "name for your contact"},
+          {field: "number", type: "required", example: "6285xxx or 085xxx", detail: "number for your contact"},
+          {field: "country", type: "required", example: "ID, US, UK, etc", detail: "this field used to validate number. so, make sure country code is correct for your number"},
+          {field: "gander", type: "optional", example: "M, W, O", detail: "M = Man, W = Woman, O = Other"},
+          {field: "birthday", type: "optional", example: "2019-09-19", detail: "name for your contact"},
+          {field: "profession", type: "optional", example: "manager", detail: "profession for your contact"},
+          {field: "location", type: "optional", example: "jakarta", detail: "location for your contact"},
+          {field: "greeting", type: "optional", example: "Mr, Mrs, Pak, Buk", detail: "used for template message"},
+          {field: "additional", type: "optional", example: "bulk marketing 01", detail: "used for extra contact identification"},
+        ]
+      }
     };
   },
   mounted() {
@@ -167,7 +205,18 @@ export default {
   computed: {
     ...mapGetters({
       contacts: "contacts/contacts"
-    })
+    }),
+    pages() {
+      if (
+        this.pagination.rowsPerPage == null ||
+        this.pagination.totalItems == null
+      )
+        return 0;
+
+      return Math.ceil(
+        this.pagination.totalItems / this.pagination.rowsPerPage
+      );
+    }
   },
   methods: {
     fileChanged(file) {

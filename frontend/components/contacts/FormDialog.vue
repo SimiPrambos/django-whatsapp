@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="formDialog" max-width="500px" scrollable>
+  <v-dialog v-model="formDialog" :max-width="maxWidth" scrollable>
     <template v-slot:activator="{ on }">
       <v-btn flat outline :block="block" :color="color" v-on="on">
         <v-icon v-if="icon">{{icon}}</v-icon>
@@ -38,7 +38,11 @@ export default {
     icon: String,
     block: Boolean,
     onSave: Function,
-    disabled: Boolean
+    disabled: Boolean,
+    maxWidth: {
+      type: String,
+      default: "500px"
+    }
   },
   data() {
     return {

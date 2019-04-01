@@ -32,14 +32,14 @@
           <v-window-item :value="2">
             <v-card-text>
               <v-layout row wrap>
-                <v-flex>
+                <v-flex lg6 sm6 xs12>
                   <v-checkbox
                     v-model="multiple"
                     label="Multiple contact?"
                     :disabled="messages.from.length > 1"
                   ></v-checkbox>
                 </v-flex>
-                <v-flex>
+                <v-flex lg6 sm6 xs12>
                   <v-checkbox v-model="includeFriend">
                     <span slot="label">
                       Include friend list? (used for blocking anticipation). click
@@ -114,6 +114,52 @@
                         auto-grow
                         clearable
                       ></v-textarea>
+                      <v-item-group multiple>
+                        <v-subheader>Text Formatting</v-subheader>
+                        <v-item>
+                          <v-chip>
+                            <i>italic</i> : _text_
+                          </v-chip>
+                        </v-item>
+                        <v-item>
+                          <v-chip>
+                            <b>bold</b> : *text*
+                          </v-chip>
+                        </v-item>
+                        <v-item>
+                          <v-chip>
+                            <strike>strikerough</strike>: ~text~
+                          </v-chip>
+                        </v-item>
+                      </v-item-group>
+                      <v-item-group multiple v-if="multiple">
+                        <v-subheader>Available template</v-subheader>
+                        <v-item>
+                          <v-chip>
+                            <span v-pre>{{greeting}}</span>
+                          </v-chip>
+                        </v-item>
+                        <v-item>
+                          <v-chip>
+                            <span v-pre>{{name}}</span>
+                          </v-chip>
+                        </v-item>
+                        <v-item>
+                          <v-chip>
+                            <span v-pre>{{number}}</span>
+                          </v-chip>
+                        </v-item>
+                        <v-item>
+                          <v-chip label>
+                            <span v-pre>example: Hello {{greeting}} {{name}}, are you fine?</span>
+                          </v-chip>
+                        </v-item>
+                        <v-item>
+                          <v-chip label>
+                            <span>output: Hello Mr John, are you fine?</span>
+                          </v-chip>
+                        </v-item>
+                      </v-item-group>
                       <v-select
                         v-model="messages.content[index].media"
                         :items="selectMedia"
@@ -181,7 +227,7 @@
 import { mapGetters } from "vuex";
 export default {
   layout: "dashboard",
-  middleware: ["auth","HasApiAccess"],
+  middleware: ["auth", "HasApiAccess"],
   data: () => ({
     step: 1,
     multiple: false,
@@ -195,7 +241,7 @@ export default {
     filteredContact: [],
     messages: {
       from: [],
-      to: null,
+      to: "",
       content: [{ text: "Hello, are you fine?", media: null }]
     },
     includeFriend: false
@@ -270,7 +316,7 @@ export default {
     clear() {
       this.multiple = false;
       this.messages.from = [];
-      this.messages.to = null;
+      this.messages.to = "";
       this.messages.content = [{ text: "Hello, are you fine?", media: null }];
       this.step = 1;
     },
@@ -282,7 +328,8 @@ export default {
             message_number: contact.number,
             message_content: this.friendMessages[
               Math.floor(Math.random() * Math.floor(this.friendMessages.length))
-            ].message
+            ].message,
+            template: contact
           });
         });
       }
@@ -326,7 +373,8 @@ export default {
                 ];
               let message = {
                 message_number: contact.number,
-                message_content: content.text
+                message_content: content.text,
+                template: contact
               };
               if (content.media) {
                 message["message_media"] = content.media;
@@ -348,7 +396,8 @@ export default {
                   ];
                 let message = {
                   message_number: contact.number,
-                  message_content: content.text
+                  message_content: content.text,
+                  template: contact
                 };
                 if (content.media) {
                   message["message_media"] = content.media;

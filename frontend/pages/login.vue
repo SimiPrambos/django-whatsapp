@@ -60,7 +60,9 @@ export default {
     },
     error: ""
   }),
-
+  mounted() {
+    localStorage.clear();
+  },
   methods: {
     formIsNull() {
       let isnull = false;
@@ -72,7 +74,7 @@ export default {
       return isnull;
     },
     async login() {
-      this.error = ""
+      this.error = "";
       if (!this.formIsNull()) {
         try {
           this.loading = true;

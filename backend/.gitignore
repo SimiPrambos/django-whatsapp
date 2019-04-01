@@ -1,4 +1,4 @@
-/.vscode/
+../.vscode/
 /.env/
 /chrome_cache/
 db.sqlite3

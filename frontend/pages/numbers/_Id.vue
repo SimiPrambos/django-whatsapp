@@ -318,36 +318,6 @@
             </v-card-text>
           </v-card>
         </v-flex>
-
-        <!-- advanced -->
-        <v-flex lg12 sm12 xs12>
-          <v-card>
-            <v-card-title>
-              <v-icon left>settings</v-icon>
-              <span class="title font-weight-light">Advanced Setting</span>
-              <v-spacer></v-spacer>
-              <v-btn icon>
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </v-card-title>
-            <v-card-text>
-              <v-data-table :items="items" hide-headers hide-actions>
-                <template v-slot:items="props">
-                  <tr>
-                    <td class="text-xs-left subheading">Auto Record Inbox</td>
-                    <td class="text-xs-left">
-                      <v-layout row wrap justify-end>
-                        <v-flex sm4>
-                          <v-text-field>hey</v-text-field>
-                        </v-flex>
-                      </v-layout>
-                    </td>
-                  </tr>
-                </template>
-              </v-data-table>
-            </v-card-text>
-          </v-card>
-        </v-flex>
       </v-layout>
     </v-container>
   </div>

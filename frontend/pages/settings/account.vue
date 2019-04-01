@@ -22,7 +22,41 @@
                   <tr>
                     <td class="text-xs-left subheading">Password</td>
                     <td class="text-xs-left subheading">
-                      <v-btn flat outline small>change password</v-btn>
+                      <form-dialog
+                        title="Change password"
+                        label="change password"
+                        color="black"
+                        icon="mdi-lock-open-outline"
+                        :onSave="onSave"
+                        ref="changepassword"
+                      >
+                        <template v-slot:form>
+                          <v-flex>
+                            <v-text-field
+                              append-icon="lock"
+                              data-vv-name="currentpassword"
+                              label="Current Password"
+                              type="password"
+                              v-model="changePassword.current_password"
+                              v-validate="'required|min:8'"
+                              :error-messages="errors.collect('currentpassword')"
+                              ref="currentpassword"
+                            ></v-text-field>
+                          </v-flex>
+                          <v-flex>
+                            <v-text-field
+                              append-icon="lock"
+                              data-vv-name="newpassword"
+                              label="New Password"
+                              type="password"
+                              v-model="changePassword.new_password"
+                              v-validate="'required|min:8'"
+                              :error-messages="errors.collect('newpassword')"
+                              ref="newpassword"
+                            ></v-text-field>
+                          </v-flex>
+                        </template>
+                      </form-dialog>
                     </td>
                   </tr>
                   <tr>
@@ -53,11 +87,20 @@
 
 <script>
 import { mapGetters } from "vuex";
+import FormDialog from "@/components/contacts/FormDialog";
 export default {
   layout: "dashboard",
   middleware: "auth",
+  components: {
+    FormDialog
+  },
   data() {
-    return {};
+    return {
+      changePassword: {
+        current_password: "",
+        new_password: ""
+      }
+    };
   },
   computed: {
     ...mapGetters({ user: "loggedInUser" }, { numbers: "numbers/numbers" })
@@ -65,6 +108,32 @@ export default {
   methods: {
     formateDate(string) {
       return string ? new Date(string).toLocaleDateString() : "";
+    },
+    onSave() {
+      console.log(this.changePassword);
+      this.$axios
+        .post("auth/password/", this.changePassword)
+        .then(response => {
+          if (response.status === 204) {
+            this.$auth.logout();
+          }
+        })
+        .catch(error => {
+          if (error.response.status === 400) {
+            if (error.response.data.current_password) {
+              this.errors.add({
+                field: "currentpassword",
+                msg: error.response.data.current_password
+              });
+            }
+            if (error.response.data.new_password) {
+              this.errors.add({
+                field: "newpassword",
+                msg: error.response.data.new_password
+              });
+            }
+          }
+        });
     }
   }
 };

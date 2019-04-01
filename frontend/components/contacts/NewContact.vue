@@ -67,6 +67,9 @@
         <v-text-field v-model="contact.location" label="location"></v-text-field>
       </v-flex>
       <v-flex lg12 sm12 xs12>
+        <v-text-field v-model="contact.greeting" label="greeting"></v-text-field>
+      </v-flex>
+      <v-flex lg12 sm12 xs12>
         <v-text-field v-model="contact.additional" label="additional"></v-text-field>
       </v-flex>
     </template>
@@ -84,7 +87,8 @@ const defaultContact = {
   birthday: "",
   profession: "",
   location: "",
-  additional: ""
+  additional: "",
+  greeting: ""
 };
 export default {
   components: {
@@ -106,12 +110,13 @@ export default {
     },
     onInput({ number, isValid, country }) {
       this.contact.country = country.iso2;
-      this.contact.number = this.validateNumber(number);
+      this.contact.number = number;
     },
     onSave() {
       this.contact.birthday = this.contact.birthday
         ? this.contact.birthday
         : null;
+      this.contact.number = this.validateNumber(this.contact.number);
       this.$store.dispatch("contacts/POST_CONTACTS", this.contact);
       this.$refs.addcontact.close();
     }

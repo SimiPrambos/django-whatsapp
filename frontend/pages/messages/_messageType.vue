@@ -28,6 +28,8 @@
                   :items="items(messageType)"
                   :search="search"
                   item-key="id"
+                  :pagination.sync="pagination"
+                  hide-actions
                   class="elevation-1 table-striped"
                 >
                   <template slot="items" slot-scope="props">
@@ -56,6 +58,9 @@
                     icon="warning"
                   >No results for "{{ search }}".</v-alert>
                 </v-data-table>
+                <div class="text-xs-center pt-2">
+                  <v-pagination v-model="pagination.page" :length="pages"></v-pagination>
+                </div>
               </template>
               <v-divider></v-divider>
             </v-card-text>
@@ -70,8 +75,14 @@
             <span class="headline">Message Detail</span>
           </v-card-title>
           <v-card-text>
-            <h5>Number : {{selected.number}}</h5>
-            <h5>Message : {{selected.message}}</h5>
+            <v-layout row wrap>
+              <v-flex lg12 sm12 xs12>
+                <v-text-field name="number" :value="selected.number" box readonly label="number"></v-text-field>
+              </v-flex>
+              <v-flex lg12 sm12 xs12>
+                <v-textarea name="message" :value="selected.message" box readonly label="message"></v-textarea>
+              </v-flex>
+            </v-layout>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -101,7 +112,8 @@ export default {
       selected: {
         message: "",
         number: ""
-      }
+      },
+      pagination: {}
     };
   },
   mounted() {
@@ -149,6 +161,17 @@ export default {
           sortable: true
         }
       ];
+    },
+    pages() {
+      if (
+        this.pagination.rowsPerPage == null ||
+        this.pagination.totalItems == null
+      )
+        return 0;
+
+      return Math.ceil(
+        this.pagination.totalItems / this.pagination.rowsPerPage
+      );
     }
   },
   methods: {
