@@ -81,8 +81,7 @@ def background_task(id):
             if is_allowed_record(id):
                 incoming_message_background(id)
     except Exception:
-        # drivers.pop(id)
-        pass
+        drivers.pop(id)
     finally:
         release_semaphore(id)
 
@@ -182,10 +181,9 @@ def stop_instance(id):
     status = False
     if id in drivers:
         try:
-            drivers.pop(id).quit()
-            timers[id].stop()
+            d = drivers.pop(id)
+            d.quit()
             status = True
-            time.sleep(3)
         except Exception:
             pass
     else:
@@ -208,13 +206,7 @@ def status_instance(id):
     if id in drivers and drivers[id]:
         is_running = True
     if is_running:
-        try:
-            release_semaphore(id)
-            is_logged_in = drivers[id].is_logged_in()
-        except Exception:
-            pass
-        finally:
-            release_semaphore(id)
+        is_logged_in = drivers[id].is_logged_in()
     return {"is_running":is_running, "is_logged_in":is_logged_in}
 
 def status_number(id, number):
