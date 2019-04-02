@@ -117,7 +117,14 @@ class LoginNumber(generics.RetrieveAPIView):
         status = status_instance(pk)
         if status["is_running"]:
             if not status["is_logged_in"]:
-                return Response({"qrcode":get_instance(pk).get_qr_base64()})
+                instance = get_instance(pk)
+                instance.wait_for_login(timeout=3)
+                qrcode = ""
+                try:
+                    qrcode = instance.get_qr_base64()
+                except Exception:
+                    pass
+                return Response({"qrcode":instance.get_qr_base64()})
             else:
                 return Response({"status":"isLoggedIn"})
         else:
