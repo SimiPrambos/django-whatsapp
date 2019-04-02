@@ -19,7 +19,8 @@ from base64 import b64decode, b64encode
 import magic
 from io import BytesIO
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, WebDriverException
+from urllib3.exceptions import NewConnectionError, MaxRetryError
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.firefox.options import Options
@@ -257,6 +258,8 @@ class WhatsAPIDriver(object):
         try:
             loggedin = self.wapi_functions.isLoggedIn()
         except NoSuchElementException:
+            pass
+        except (WebDriverException, NewConnectionError, MaxRetryError):
             pass
         return loggedin
 

@@ -21,9 +21,7 @@ messages = dict()
 
 def init_driver(id):
     profile_path = settings.CHROME_CACHE_PATH + str(id)
-    print(profile_path)
     if not os.path.exists(profile_path):
-        print("sip")
         os.makedirs(profile_path)
 
     chrome_options = [
@@ -76,14 +74,12 @@ def background_task(id):
     
     try:
         release_semaphore(id)
-        # if drivers[id].is_logged_in():
         if is_time_to_send(id):
             outbound_message_background(id)
         if is_allowed_record(id):
             incoming_message_background(id)
     except Exception:
-        # drivers.pop(id)
-        pass
+        drivers.pop(id)
     finally:
         release_semaphore(id)
 
