@@ -108,7 +108,7 @@
                 <v-text-field name="replay" v-model="textreplay" label="Replay"></v-text-field>
               </v-flex>
               <v-flex lg2 sm2 xs2 v-if="messageType === 'IN'">
-                <v-btn fab color="teal" dark icon @click="replay">
+                <v-btn :disabled="!textreplay" flat fab color="teal" icon @click="replay">
                   <v-icon>send</v-icon>
                 </v-btn>
               </v-flex>
@@ -157,7 +157,11 @@ export default {
   computed: {
     ...mapGetters({ messages: "messages/messagesByType" }),
     items() {
-      return this.messages(this.messageType());
+      return this.messages(this.messageType);
+    },
+    messageType() {
+      let type = this.$route.params.messageType.toLowerCase();
+      return type === "inbox" ? "IN" : type === "outbox" ? "OUT" : "ALL";
     },
     headers() {
       return [
@@ -207,10 +211,6 @@ export default {
     }
   },
   methods: {
-    messageType() {
-      let type = this.$route.params.messageType.toLowerCase();
-      return type === "inbox" ? "IN" : type === "outbox" ? "OUT" : "ALL";
-    },
     getColorByStatus(status) {
       return this.colors[status];
     },

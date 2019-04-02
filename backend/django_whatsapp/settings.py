@@ -157,6 +157,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, '/static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+FILE_UPLOAD_PERMISSIONS = 0o640
 
 # selenium chrome configuration
 CHROME_IS_HEADLESS = False
