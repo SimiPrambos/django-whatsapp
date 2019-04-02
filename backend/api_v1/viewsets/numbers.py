@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-
+from selenium.common.exceptions import NoSuchElementException
 from rest_framework import generics
 from rest_framework.response import Response
 
@@ -69,7 +69,7 @@ class StartNumber(generics.RetrieveAPIView):
             return Response(status=404)
         is_running = False
         try:
-            number_instance = start_instance(pk)
+            start_instance(pk)
             is_running = True
         except:
             pass
@@ -117,7 +117,12 @@ class LoginNumber(generics.RetrieveAPIView):
         status = status_instance(pk)
         if status["is_running"]:
             if not status["is_logged_in"]:
-                return Response({"qrcode":get_instance(pk).get_qr_base64()})
+                qrcode = ""
+                try:
+                    qrcode = get_instance(pk).get_qr_base64()
+                except NoSuchElementException:
+                    pass
+                return Response({"qrcode":qrcode})
             else:
                 return Response({"status":"isLoggedIn"})
         else:

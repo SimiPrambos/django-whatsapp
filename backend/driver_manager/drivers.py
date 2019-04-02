@@ -1,6 +1,6 @@
 import os, shutil, threading, time, random
 from .webwhatsapi import WhatsAPIDriver, WhatsAPIDriverStatus
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import WebDriverException, TimeoutException
 from .handlers import RepeatedTimer, HandleReceivedMessage, HandleSendMessage
 from django.conf import settings
 from .config import (
@@ -21,7 +21,9 @@ messages = dict()
 
 def init_driver(id):
     profile_path = settings.CHROME_CACHE_PATH + str(id)
+    print(profile_path)
     if not os.path.exists(profile_path):
+        print("sip")
         os.makedirs(profile_path)
 
     chrome_options = [
@@ -74,14 +76,14 @@ def background_task(id):
     
     try:
         release_semaphore(id)
-        if drivers[id].is_logged_in():
-            if is_time_to_send(id):
-                outbound_message_background(id)
-
-            if is_allowed_record(id):
-                incoming_message_background(id)
+        # if drivers[id].is_logged_in():
+        if is_time_to_send(id):
+            outbound_message_background(id)
+        if is_allowed_record(id):
+            incoming_message_background(id)
     except Exception:
-        drivers.pop(id)
+        # drivers.pop(id)
+        pass
     finally:
         release_semaphore(id)
 
@@ -172,7 +174,11 @@ def get_instance(id):
 
 def start_instance(id):
     instance = init_client(id)
-    instance.wait_for_login(timeout=5)
+    # try:
+    #     instance.wait_for_login(timeout=5)
+    # except TimeoutException:
+    #     pass
+    time.sleep(5)
     messages[id] = 0
     init_timer(id)
     return instance
@@ -180,11 +186,14 @@ def start_instance(id):
 def stop_instance(id):
     status = False
     if id in drivers:
+        drivers.pop(id).quit()
         try:
-            d = drivers.pop(id)
-            d.quit()
+            timers[id].stop()
+            timers[id] = None
+            release_semaphore(id)
+            semaphores[id] = None
             status = True
-        except Exception:
+        except:
             pass
     else:
         status = True

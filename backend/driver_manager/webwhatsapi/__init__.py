@@ -253,7 +253,12 @@ class WhatsAPIDriver(object):
 
         # instead we use this (temporary) solution:
         # return 'class="app _3dqpi two"' in self.driver.page_source
-        return self.wapi_functions.isLoggedIn()
+        loggedin = False
+        try:
+            loggedin = self.wapi_functions.isLoggedIn()
+        except NoSuchElementException:
+            pass
+        return loggedin
 
     def wait_for_login(self, timeout=90):
         """Waits for the QR to go away"""
