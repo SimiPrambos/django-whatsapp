@@ -165,7 +165,6 @@ export default {
     },
     headers() {
       return [
-        { text: "ID", align: "left", sortable: true, value: "id" },
         {
           text: this.messageType === "IN" ? "FROM" : "TO",
           align: "left",
