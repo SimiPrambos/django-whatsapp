@@ -11,7 +11,7 @@ this project was inspired from chat-api.com apiwha.com wich is an our service pr
 #### Install : 
 ```bash
 # clone this repo
-git clone -b project https://github.com/simiprambos/django-whatsapp.git
+git clone https://github.com/simiprambos/django-whatsapp.git
 cd django-whatsapp
 
 # build docker image
