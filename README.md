@@ -3,7 +3,7 @@ Unofficial whatsapp api for bussiness with integrated user panel interface
 ---
 
 #### Story :
-this project was inspired from chat-api.com apiwha.com wich is an our service provider of unofficial whatsapp api for bussiness.
+this project was inspired from chat-api.com apiwha.com which is a service provider of unofficial whatsapp api for bussiness.
 
 #### Required :
 1. Docker compose
